@@ -2,221 +2,115 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.16] - Diag</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi P2P Turbo Share</title>
+    <link rel="manifest" href="manifest.json">
     
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/polyfill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/streamsaver@2.0.3/StreamSaver.min.js"></script>
 
     <style>
-        :root { 
-            --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
-            --green: #34c759; --border: #dddddd; --red: #ff3b30; --neon: #39ff14;
-        }
-        @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0b; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
-        
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 0; color: var(--text); }
-        
-        /* CABEÇALHO FIXO 70PX */
-        #top-id-container { position: sticky; top: 0; width: 100%; height: 70px; z-index: 1000; }
-        .ver-header-pro { 
-            background: #000; color: var(--neon); height: 70px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 900; border-bottom: 3px solid var(--neon);
-            box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4); cursor: help;
-        }
-        .change-log-hover { 
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%) translateY(-10px); width: 90%; max-width: 400px;
-            background: var(--card); border: 2px solid var(--neon); border-radius: 0 0 20px 20px; padding: 15px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 999;
-        }
-        #top-id-container:hover .change-log-hover { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-
-        .card-area { padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
-        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 440px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
-        
-        .btn-file { background: var(--bg); border: 2px dashed var(--blue); color: var(--blue); padding: 20px; border-radius: 20px; font-weight: 700; cursor: pointer; display: block; }
-        #file-input { display: none; }
-
-        #reader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 5000; display: none; background: #000; }
-        #close-cam { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 5001; background: var(--red); color: white; border: none; padding: 20px 60px; border-radius: 50px; font-weight: 900; }
-
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-sec { padding: 15px 5px; border-radius: 16px; border: none; font-weight: 800; color: white; font-size: 11px; text-transform: uppercase; cursor: pointer; }
-        .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px 5px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); }
-        
-        .progress-track { background: var(--border); height: 20px; border-radius: 10px; overflow: hidden; margin: 12px 0; }
-        .bar-fill { height: 100%; transition: width 0.1s linear; }
-        #tx-bar { background: var(--green); }
-        #rx-bar { background: var(--blue); }
-        .btn-main { border: none; padding: 22px; border-radius: 22px; font-weight: 900; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 16px; }
-        
-        #diag-tag { font-size: 11px; font-weight: 900; color: var(--red); }
+        body { font-family: sans-serif; background: #0b0e11; color: #e9edef; text-align: center; padding: 20px; }
+        .card { background: #202c33; padding: 25px; border-radius: 20px; max-width: 400px; margin: auto; }
+        .dot { height: 12px; width: 12px; background: #ef4444; border-radius: 50%; display: inline-block; }
+        .online { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+        button { background: #00a884; color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:disabled { background: #3b4a54; }
+        #progress { display: none; margin-top: 20px; background: #3b4a54; border-radius: 10px; height: 10px; overflow: hidden; }
+        #progressBar { background: #00a884; height: 100%; width: 0%; transition: width 0.1s; }
     </style>
 </head>
 <body>
-
-    <div id="top-id-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.16-DIAG</div>
-        <div class="change-log-hover">
-            <b style="color:var(--green); display:block; margin-bottom:8px;">DIAGNÓSTICO DE REDE:</b>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">📡 Tipo de Conexão: <span id="net-type" style="color:var(--blue)">Analisando...</span></li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Rota: <span id="net-route">Aguardando Peer</span></li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Escrita: StreamSaver (Direto no Disco)</li>
-            <li style="list-style:none; font-size:12px;">✅ Motor: 1MB a 6MB</li>
+    <div class="card">
+        <h2>WiFi Turbo Share</h2>
+        <div class="status-container">
+            <div id="dot" class="dot"></div>
+            <span id="statusTxt">Aguardando conexão...</span>
         </div>
-    </div>
+        
+        <input type="file" id="fileInput" style="display: none">
+        <button onclick="document.getElementById('fileInput').click()">📁 Selecionar Arquivo</button>
+        <br><br>
+        <button id="sendBtn" onclick="enviar()" disabled>🚀 Enviar para Celular</button>
 
-    <div id="reader"><button id="close-cam" onclick="toggleScanner()">CANCELAR SCANNER</button></div>
-
-    <div class="card-area">
-        <div class="card">
-            <div id="my-id-display" style="font-size: 40px; font-weight: 900; color: var(--blue); margin-bottom: 12px;">----</div>
-            <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 12px; border-radius: 20px; width: fit-content; margin: 0 auto; border: 1px solid var(--border);"></div>
-            <div class="btn-row">
-                <button class="btn-sec" style="background:var(--green)" onclick="shareWpp()">WhatsApp</button>
-                <button class="btn-sec" style="background:var(--blue)" onclick="shareTg()">Telegram</button>
-                <button class="btn-sec" style="background:#3a3a3c" onclick="toggleScanner()">Câmera</button>
-            </div>
+        <div id="progress">
+            <div id="progressBar"></div>
         </div>
-
-        <div class="card" id="motor-card">
-            <span style="font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; text-align: left;">🚀 Ajuste de Chunks</span>
-            <div class="grid-opt">
-                <button class="btn-opt" onclick="setChunk(1048576, this)">1 MB</button>
-                <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
-                <button class="btn-opt" onclick="setChunk(3145728, this)">3 MB</button>
-                <button class="btn-opt" onclick="setChunk(4194304, this)">4 MB</button>
-                <button class="btn-opt active" onclick="setChunk(5242880, this)">5 MB</button>
-                <button class="btn-opt" onclick="setChunk(6291456, this)">6 MB</button>
-            </div>
-        </div>
-
-        <div class="card" id="main-area" style="display:none;">
-            <label for="file-input" class="btn-file" id="file-label">📁 SELECIONAR ARQUIVOS</label>
-            <input type="file" id="file-input" multiple onchange="updateFileStatus()">
-
-            <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
-                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>STATUS:</span><span id="tx-pct">0%</span></div>
-                <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
-                <div id="tx-speed" style="font-size: 12px; font-weight: 900; color:var(--green);">0.00 MB/s</div>
-            </div>
-            
-            <div id="rx-area" style="display:none; margin-top:15px; text-align:left;">
-                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>RECEBENDO...</span><span id="rx-pct">0%</span></div>
-                <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
-            </div>
-            <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">INICIAR TRANSFERÊNCIA</button>
-        </div>
+        <div id="speed" style="margin-top: 10px; font-size: 0.8em;"></div>
     </div>
 
     <script>
-        console.log("%c 🚀 PRIVDROP DIAG v2.6.16 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
-        
-        let peer, conn, chunkVal = 5242880, msVal = 500, html5QrCode;
-        let fileStream = null, writer = null, receivedBytes = 0;
+        const socket = io(); // Se usar no PC. Se for GitHub, mude para o IP do PC.
+        let peer;
+        let writer;
+        let startTime;
 
-        function updateFileStatus() {
-            const input = document.getElementById('file-input');
-            if (input.files.length > 0) document.getElementById('file-label').innerText = `📦 ${input.files[0].name.substring(0,20)}...`;
-        }
-
-        peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
-        peer.on('open', id => {
-            document.getElementById('my-id-display').innerText = id;
-            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?join=" + id, width: 140, height: 140 });
-            if(new URLSearchParams(window.location.search).get('join')) connect(new URLSearchParams(window.location.search).get('join'));
+        socket.on('user-joined', id => conectar(id, true));
+        socket.on('signal', data => {
+            if (!peer) conectar(data.from, false);
+            peer.signal(data.signal);
         });
 
-        peer.on('connection', c => { conn = c; setupConn(); });
-        function connect(id) { conn = peer.connect(id); setupConn(); }
+        function conectar(targetId, initiator) {
+            peer = new SimplePeer({ initiator, trickle: false });
 
-        function setupConn() {
-            document.getElementById('motor-card').style.display = 'none';
-            document.getElementById('main-area').style.display = 'block';
-            
-            // ANALISADOR DE REDE
-            setTimeout(() => {
-                if(conn.peerConnection) {
-                    const pc = conn.peerConnection;
-                    pc.getStats().then(stats => {
-                        stats.forEach(report => {
-                            if (report.type === 'candidate-pair' && report.state === 'succeeded') {
-                                const local = stats.get(report.localCandidateId);
-                                const remote = stats.get(report.remoteCandidateId);
-                                const isRelay = local.candidateType === 'relay' || remote.candidateType === 'relay';
-                                document.getElementById('net-type').innerText = isRelay ? "INTERNET (LENTO)" : "REDE LOCAL (RÁPIDO)";
-                                document.getElementById('net-type').style.color = isRelay ? "var(--red)" : "var(--green)";
-                                document.getElementById('net-route').innerText = local.protocol + " " + local.candidateType;
-                            }
-                        });
-                    });
-                }
-            }, 2000);
+            peer.on('signal', signal => socket.emit('signal', { to: targetId, signal }));
 
-            conn.on('data', async d => {
-                if (d.file) {
-                    if (!writer) {
-                        receivedBytes = 0;
-                        document.getElementById('rx-area').style.display = 'block';
-                        fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
-                        writer = fileStream.getWriter();
-                    }
-                    const uint8 = new Uint8Array(d.file);
-                    writer.write(uint8).then(() => {
-                        receivedBytes += uint8.length;
-                        document.getElementById('rx-bar').style.width = Math.round((receivedBytes/d.totalSize)*100) + "%";
-                        document.getElementById('rx-pct').innerText = Math.round((receivedBytes/d.totalSize)*100) + "%";
-                    });
-                    if (d.last) {
-                        setTimeout(async () => {
-                            if(writer) { await writer.close(); writer = null; }
-                            setTimeout(() => { document.getElementById('rx-area').style.display = 'none'; }, 2000);
-                        }, 500);
-                    }
+            peer.on('connect', () => {
+                document.getElementById('dot').classList.add('online');
+                document.getElementById('statusTxt').innerText = "Conectado P2P!";
+                document.getElementById('sendBtn').disabled = false;
+            });
+
+            peer.on('data', data => {
+                // Lógica de Recebimento em Alta Velocidade
+                if (typeof data === 'string' && data.startsWith('meta:')) {
+                    const meta = JSON.parse(data.split('meta:')[1]);
+                    const fileStream = streamSaver.createWriteStream(meta.name, { size: meta.size });
+                    writer = fileStream.getWriter();
+                    if ('vibrate' in navigator) navigator.vibrate(200);
+                    return;
                 }
+
+                if (data.byteLength === 0) { // Fim do arquivo
+                    writer.close();
+                    alert("Arquivo recebido com sucesso!");
+                    return;
+                }
+
+                writer.write(new Uint8Array(data));
             });
         }
 
-        function setChunk(v, b) { chunkVal = v; document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+        async function enviar() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file || !peer) return;
 
-        async function sendFile(f) {
-            document.getElementById('tx-area').style.display = 'block';
-            let offset = 0, start = Date.now(), lastUp = 0;
-            let actualChunk = (f.size < 20 * 1024 * 1024) ? f.size : chunkVal;
-            while(offset < f.size) {
-                if (conn.bufferSize > actualChunk * 2) { await new Promise(r => setTimeout(r, 20)); }
-                const chunk = f.slice(offset, offset + actualChunk);
-                conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + actualChunk >= f.size) });
-                offset += actualChunk;
-                let now = Date.now();
-                if(now - lastUp > msVal || offset >= f.size) {
-                    let bps = offset / ((now - start) / 1000);
-                    document.getElementById('tx-bar').style.width = Math.round((offset/f.size)*100) + '%';
-                    document.getElementById('tx-pct').innerText = Math.round((offset/f.size)*100) + '%';
-                    document.getElementById('tx-speed').innerText = (bps/1024/1024).toFixed(2) + " MB/s";
-                    lastUp = now;
+            document.getElementById('progress').style.display = 'block';
+            
+            // Envia metadados
+            peer.send('meta:' + JSON.stringify({ name: file.name, size: file.size }));
+
+            const chunkSize = 128 * 1024; // Pacotes de 128KB (Mais rápido)
+            const reader = file.stream().getReader();
+            let offset = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    peer.send(new Uint8Array(0)); // Sinaliza fim
+                    break;
                 }
+                
+                peer.send(value);
+                offset += value.byteLength;
+                document.getElementById('progressBar').style.width = (offset / file.size * 100) + '%';
             }
-        }
-
-        async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { await sendFile(f); } }
-        function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
-        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop LAB`); }
-        function toggleScanner() {
-            const r = document.getElementById('reader');
-            const tid = document.getElementById('top-id-container');
-            if (r.style.display === 'block') { if(html5QrCode) html5QrCode.stop().then(() => { r.style.display = 'none'; tid.style.display = 'block'; }); return; }
-            r.style.display = 'block'; tid.style.display = 'none';
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 300, height: 300 } }, (text) => {
-                const url = new URL(text); const joinId = url.searchParams.get("join");
-                if(joinId) { connect(joinId); html5QrCode.stop().then(() => { r.style.display = 'none'; tid.style.display = 'block'; }); }
-            }).catch(() => {});
+            
+            alert("Envio finalizado!");
+            document.getElementById('progress').style.display = 'none';
         }
     </script>
 </body>

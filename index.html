@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.13] - Ultra Clean</title>
+    <title>PrivDrop [v2.6.14] - Pro UI</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -20,8 +20,8 @@
         
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 0; color: var(--text); overflow-x: hidden; }
         
-        /* IDENTIFICADOR 70PX OCULTÁVEL */
-        #top-id-container { position: sticky; top: 0; width: 100%; height: 70px; z-index: 1000; transition: transform 0.3s ease; }
+        /* CABEÇALHO 70PX */
+        #top-id-container { position: sticky; top: 0; width: 100%; height: 70px; z-index: 1000; }
         .ver-header-pro { 
             background: #000; color: var(--neon); height: 70px; display: flex; align-items: center; justify-content: center;
             font-size: 20px; font-weight: 900; border-bottom: 3px solid var(--neon);
@@ -37,16 +37,26 @@
         .card-area { padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
         .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 440px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
         
-        /* CÂMERA FULL SCREEN (Z-INDEX MÁXIMO) */
+        /* BOTÃO DE ARQUIVO CUSTOMIZADO */
+        .file-upload-wrapper { margin-bottom: 15px; width: 100%; }
+        .btn-file { 
+            background: var(--bg); border: 2px dashed var(--blue); color: var(--blue);
+            padding: 20px; border-radius: 20px; font-weight: 700; cursor: pointer;
+            display: block; text-align: center; transition: 0.2s;
+        }
+        .btn-file:hover { background: rgba(0, 122, 255, 0.05); }
+        #file-input { display: none; } /* Esconde o botão feio original */
+
+        /* CÂMERA FULL SCREEN */
         #reader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 5000; display: none; background: #000; }
-        #cam-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 10px solid rgba(57, 255, 20, 0.2); box-sizing: border-box; pointer-events: none; }
-        #close-cam { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 5001; background: var(--red); color: white; border: none; padding: 20px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; box-shadow: 0 0 30px rgba(255,0,0,0.5); font-size: 16px; }
+        #close-cam { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 5001; background: var(--red); color: white; border: none; padding: 20px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; box-shadow: 0 0 30px rgba(255,0,0,0.5); }
 
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-sec { padding: 15px 5px; border-radius: 16px; border: none; font-weight: 800; color: white; font-size: 11px; text-transform: uppercase; cursor: pointer; }
         .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px 5px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); }
+        
         .progress-track { background: var(--border); height: 20px; border-radius: 10px; overflow: hidden; margin: 12px 0; }
         .bar-fill { height: 100%; transition: width 0.1s linear; }
         #tx-bar { background: var(--green); }
@@ -57,20 +67,17 @@
 <body>
 
     <div id="top-id-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.13-CLEAN</div>
+        <div class="ver-header-pro">🛠️ LAB v2.6.14-PRO UI</div>
         <div class="change-log-hover">
-            <b style="color:var(--green); display:block; margin-bottom:8px;">STATUS v2.6.13:</b>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Câmera: Oculta Identificador ao abrir</li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Escrita: StreamSaver Direto em Disco</li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Transf: <span id="file-count">0</span> concluídos</li>
-            <li style="list-style:none; font-size:12px;">✅ Motor: Marchas 1MB - 6MB</li>
+            <b style="color:var(--green); display:block; margin-bottom:8px;">STATUS v2.6.14:</b>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Botão "Escolher" customizado e limpo</li>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Input de arquivo original ocultado</li>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Câmera: Oculta Identificador 70px</li>
+            <li style="list-style:none; font-size:12px;">✅ Motor: 1MB a 6MB (Original)</li>
         </div>
     </div>
 
-    <div id="reader">
-        <div id="cam-overlay"></div>
-        <button id="close-cam" onclick="toggleScanner()">CANCELAR SCANNER</button>
-    </div>
+    <div id="reader"><button id="close-cam" onclick="toggleScanner()">CANCELAR SCANNER</button></div>
 
     <div class="card-area">
         <div class="card">
@@ -96,7 +103,13 @@
         </div>
 
         <div class="card" id="main-area" style="display:none;">
-            <input type="file" id="file-input" multiple style="width: 100%;">
+            <div class="file-upload-wrapper">
+                <label for="file-input" class="btn-file" id="file-label">
+                    📁 SELECIONAR ARQUIVOS
+                </label>
+                <input type="file" id="file-input" multiple onchange="updateFileLabel()">
+            </div>
+
             <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
                 <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>UPLOADING...</span><span id="tx-pct">0%</span></div>
                 <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
@@ -111,7 +124,7 @@
     </div>
 
     <script>
-        console.log("%c 🚀 PRIVDROP LAB v2.6.13-ULTRA-CLEAN ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
+        console.log("%c 🚀 PRIVDROP PRO UI v2.6.14 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
         
         let peer, conn, chunkVal = 5242880, msVal = 500, html5QrCode, filesDone = 0;
         let fileStream = null, writer = null, receivedBytes = 0;
@@ -123,6 +136,17 @@
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.frequency.value = 880; gain.gain.value = 0.1;
             osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Atualiza o texto do botão customizado ao escolher arquivos
+        function updateFileLabel() {
+            const input = document.getElementById('file-input');
+            const label = document.getElementById('file-label');
+            if (input.files.length > 0) {
+                label.innerText = `📦 ${input.files.length} SELECIONADO(S)`;
+                label.style.borderColor = "var(--green)";
+                label.style.color = "var(--green)";
+            }
         }
 
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
@@ -158,7 +182,6 @@
                             if(writer) { await writer.close(); writer = null; }
                             playBeep();
                             filesDone++;
-                            document.getElementById('file-count').innerText = filesDone;
                             setTimeout(() => { document.getElementById('rx-area').style.display = 'none'; }, 2000);
                         }, 500);
                     }
@@ -195,24 +218,15 @@
             const r = document.getElementById('reader');
             const tid = document.getElementById('top-id-container');
             if (r.style.display === 'block') { 
-                if(html5QrCode) html5QrCode.stop().then(() => { 
-                    r.style.display = 'none'; 
-                    tid.style.display = 'block'; // Mostra ID ao fechar
-                }); 
+                if(html5QrCode) html5QrCode.stop().then(() => { r.style.display = 'none'; tid.style.display = 'block'; }); 
                 return; 
             }
             r.style.display = 'block';
-            tid.style.display = 'none'; // Esconde ID ao abrir
+            tid.style.display = 'none';
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 300, height: 300 } }, (text) => {
                 const url = new URL(text); const joinId = url.searchParams.get("join");
-                if(joinId) { 
-                    connect(joinId); 
-                    html5QrCode.stop().then(() => { 
-                        r.style.display = 'none'; 
-                        tid.style.display = 'block'; 
-                    }); 
-                }
+                if(joinId) { connect(joinId); html5QrCode.stop().then(() => { r.style.display = 'none'; tid.style.display = 'block'; }); }
             }).catch(() => {});
         }
     </script>

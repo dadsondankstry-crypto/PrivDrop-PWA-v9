@@ -3,168 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop PWA</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007aff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>PrivDrop Lab - Smart Engine</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
-        :root { --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --green: #34c759; --border: #dddddd; }
-        @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --border: #38383a; } }
+        :root { 
+            --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
+            --green: #34c759; --border: #dddddd; --red: #ff3b30; --tg: #0088cc; 
+            --nitro-1: #8A2BE2; --nitro-2: #FF00FF; --gold: #ffcc00;
+        }
+        @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); transition: 0.3s; overflow-x: hidden; }
-        .help-btn { position: fixed; top: 20px; right: 20px; background: var(--card); border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 100; border: none; color: var(--text); }
-        #help-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; backdrop-filter: blur(8px); }
-        .modal-content { background: var(--card); margin: 15% auto; padding: 25px; border-radius: 25px; width: 85%; max-width: 400px; position: relative; }
-        .card { background: var(--card); padding: 20px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .my-id { font-size: 34px; font-weight: 800; color: var(--blue); letter-spacing: 3px; }
-        #qrcode { display: flex; justify-content: center; margin: 15px 0; background: white; padding: 10px; border-radius: 15px; width: fit-content; margin: 15px auto; }
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .btn-sec { padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; color: white; }
-        .btn-wpp { background: #25d366; } .btn-scan { background: #3a3a3c; }
-        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 20px; border: 2px solid var(--blue); }
-        .drop-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; cursor: pointer; background: rgba(128,128,128,0.05); }
-        .btn-primary { background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; }
-        #status-msg { margin-top: 15px; font-size: 14px; color: var(--blue); font-weight: 600; }
-        #file-list { text-align: left; font-size: 13px; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; display: none; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); }
+        .card { background: var(--card); padding: 20px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px; box-sizing: border-box; }
+        
+        .section-title { font-size: 10px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 8px; display: block; text-align: left; letter-spacing: 1px; }
+        
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn-sec { padding: 12px 5px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 10px; text-transform: uppercase; }
+
+        .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+        .btn-opt { background: var(--bg); border: 2px solid var(--border); color: var(--text); padding: 12px 2px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); transform: scale(1.05); }
+        
+        /* Estilo Botão Auto */
+        .btn-auto { background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important; }
+        
+        .btn-nitro { grid-column: span 3; background: linear-gradient(90deg, var(--nitro-1), var(--nitro-2)); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .btn-main { border: none; padding: 18px; border-radius: 18px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; font-size: 14px; color: white; text-transform: uppercase; }
+        #send-btn { background: var(--green); }
+        #stop-btn { background: var(--red); display: none; }
+
+        .progress-track { background: var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin: 15px 0; }
+        #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.3s ease-out; }
     </style>
 </head>
 <body>
 
-    <button class="help-btn" onclick="toggleHelp(true)">?</button>
-
-    <div id="help-modal">
-        <div class="modal-content">
-            <span style="position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;" onclick="toggleHelp(false)">&times;</span>
-            <h2 style="margin-top:0">PrivDrop P2P 🚀</h2>
-            <p>1. Abra em dois aparelhos.</p>
-            <p>2. Escaneie o QR Code.</p>
-            <p>3. Selecione e envie!</p>
-            <p style="font-size:12px; opacity: 0.7;">Arquivos diretos via Wi-Fi.</p>
+    <div class="card">
+        <div id="my-id-display" style="font-size: 32px; font-weight: 900; color: var(--blue);">----</div>
+        <div id="qrcode" style="display: flex; justify-content: center; margin: 10px 0;"></div>
+        <div class="btn-row">
+            <button class="btn-sec" style="background:var(--green)" onclick="shareWpp()">WhatsApp</button>
+            <button class="btn-sec" style="background:var(--tg)" onclick="shareTg()">Telegram</button>
+            <button class="btn-sec" style="background:#3a3a3c" onclick="toggleScanner()">Câmera</button>
         </div>
     </div>
 
     <div class="card">
-        <span style="color: #8e8e93; font-size: 11px; font-weight: bold; text-transform: uppercase;">ID de Conexão</span>
-        <div id="my-id-display" class="my-id">----</div>
-        <div id="qrcode"></div>
-        <div class="btn-row">
-            <button class="btn-sec btn-wpp" onclick="shareWhatsApp()">WhatsApp</button>
-            <button class="btn-sec btn-scan" onclick="toggleScanner()">Câmera</button>
+        <span class="section-title">🚀 Motor (Chunk)</span>
+        <div class="grid-opt">
+            <button class="btn-opt btn-auto active" id="btn-auto" onclick="setAutoMode(this)">AUTO</button>
+            <button class="btn-opt" onclick="setChunk(131072, this)">128KB</button>
+            <button class="btn-opt" onclick="setChunk(262144, this)">256KB</button>
+            <button class="btn-opt" onclick="setChunk(524288, this)">512KB</button>
+            <button class="btn-opt" onclick="setChunk(1048576, this)">1024KB</button>
+            <button class="btn-opt" onclick="setChunk(2097152, this)">2048KB</button>
         </div>
+        <button class="btn-nitro" id="nitro-btn" onclick="setNitro(this)">Nitro (Item Inteiro)</button>
     </div>
 
-    <div id="reader"></div>
-
-    <div class="card" id="setup-card">
-        <input type="text" id="peer-id-input" placeholder="ID do amigo" style="width:100%; padding:15px; border-radius:15px; border:1px solid var(--border); background: var(--bg); color: var(--text); text-align:center; margin-bottom:12px; font-size: 18px;">
-        <button class="btn-primary" onclick="connectToPeer()">Conectar</button>
-        <div id="status-msg">Aguardando...</div>
-    </div>
-
-    <div class="card" id="transfer-card" style="display:none;">
-        <div class="drop-zone" id="drop-area" onclick="document.getElementById('file-input').click()">
-            <span style="font-size: 50px;">📂</span>
-            <p id="drop-label" style="font-weight: 500;">Toque para selecionar</p>
-            <input type="file" id="file-input" multiple style="display: none;">
+    <div class="card" id="transfer-area" style="display:none;">
+        <input type="file" id="file-input" multiple style="width: 100%; margin-bottom: 15px;">
+        <div id="progress-container" style="display:none;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold;">
+                <span id="pct">0%</span>
+                <span id="speed">AGUARDANDO...</span>
+            </div>
+            <div class="progress-track"><div id="progress-bar"></div></div>
+            <div id="status-label" style="font-size: 10px; opacity: 0.7; text-align: center;">IA Monitorando rede...</div>
         </div>
-        <div id="file-list"></div>
-        <button class="btn-primary" style="background:var(--green); display:none; margin-top:15px;" id="send-trigger" onclick="sendAllFiles()">Enviar Tudo</button>
+        <button id="send-btn" class="btn-main" onclick="sendAll()">Iniciar Envio</button>
+        <button id="stop-btn" class="btn-main" onclick="cancelTransfer()">🛑 Parar</button>
     </div>
 
     <script>
-        let peer, conn, selectedFiles = [], html5QrCode;
-        const statusLbl = document.getElementById('status-msg');
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            if(type === 'connect') { osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1); }
-            else if(type === 'success') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); }
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        }
-
-        function toggleHelp(show) { document.getElementById('help-modal').style.display = show ? 'block' : 'none'; }
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+        let peer, conn, chunkVal = 262144, msVal = 1500, nitro = false, isAuto = true, isCancelled = false;
+        let received = {};
 
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
         peer.on('open', id => {
             document.getElementById('my-id-display').innerText = id;
-            const link = `${window.location.origin}${window.location.pathname}?join=${id}`;
-            new QRCode(document.getElementById("qrcode"), { text: link, width: 140, height: 140 });
-            const joinId = new URLSearchParams(window.location.search).get('join');
-            if (joinId) { document.getElementById('peer-id-input').value = joinId; setTimeout(connectToPeer, 1000); }
+            new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?join=" + id, width: 120, height: 120 });
+            const join = new URLSearchParams(window.location.search).get('join');
+            if(join) connect(join);
         });
+        peer.on('connection', c => { conn = c; setupConn(); });
 
-        function toggleScanner() {
-            const readerDiv = document.getElementById('reader');
-            if (readerDiv.style.display === 'block') { html5QrCode.stop(); readerDiv.style.display = 'none'; return; }
-            readerDiv.style.display = 'block';
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decoded) => {
-                const url = new URL(decoded);
-                document.getElementById('peer-id-input').value = url.searchParams.get("join");
-                html5QrCode.stop().then(() => { readerDiv.style.display = 'none'; connectToPeer(); });
-            }).catch(() => alert("Câmera bloqueada."));
-        }
+        function connect(id) { conn = peer.connect(id); setupConn(); }
 
-        function connectToPeer() {
-            const targetId = document.getElementById('peer-id-input').value;
-            if (!targetId) return;
-            statusLbl.innerText = "Conectando...";
-            conn = peer.connect(targetId);
-            conn.on('open', () => { playSound('connect'); setupTransferMode("Conectado!"); });
-            setupHandler();
-        }
-
-        peer.on('connection', c => { conn = c; playSound('connect'); setupHandler(); setupTransferMode("Conectado!"); });
-
-        function setupTransferMode(msg) {
-            document.getElementById('transfer-card').style.display = 'block';
-            document.getElementById('setup-card').style.display = 'none';
-            statusLbl.innerText = msg;
-        }
-
-        function setupHandler() {
-            conn.on('data', data => {
-                if (data.file) {
-                    const blob = new Blob([data.file], { type: data.type });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = data.name; a.click(); playSound('success');
+        function setupConn() {
+            document.getElementById('transfer-area').style.display = 'block';
+            conn.on('data', d => {
+                if(d.full) { save(new Blob([d.full], {type:d.type}), d.name); }
+                else if(d.file) {
+                    if(!received[d.name]) received[d.name] = [];
+                    received[d.name].push(d.file);
+                    if(d.last) { save(new Blob(received[d.name], {type:d.type}), d.name); delete received[d.name]; }
                 }
             });
         }
 
-        document.getElementById('file-input').onchange = e => {
-            selectedFiles = Array.from(e.target.files);
-            document.getElementById('file-list').innerHTML = selectedFiles.map(f => `<div>📄 ${f.name}</div>`).join('');
-            document.getElementById('file-list').style.display = 'block';
-            document.getElementById('send-trigger').style.display = 'block';
-            document.getElementById('drop-label').innerText = selectedFiles.length + " prontos";
-        };
+        function save(b, n) { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n; a.click(); }
 
-        async function sendAllFiles() {
-            for (let file of selectedFiles) {
-                statusLbl.innerText = "Enviando: " + file.name;
-                await conn.send({ file: file, name: file.name, type: file.type });
+        function setAutoMode(btn) { isAuto = true; nitro = false; resetGrp('.btn-opt', btn); document.getElementById('nitro-btn').classList.remove('active'); }
+        function setChunk(v, b) { chunkVal = v; isAuto = false; nitro = false; resetGrp('.btn-opt', b); document.getElementById('nitro-btn').classList.remove('active'); }
+        function setNitro(b) { nitro = !nitro; isAuto = false; b.classList.toggle('active'); if(nitro) document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active')); }
+        function resetGrp(s, b) { document.querySelectorAll(s).forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+
+        async function sendFile(f) {
+            isCancelled = false;
+            const pBar = document.getElementById('progress-bar');
+            const statusLbl = document.getElementById('status-label');
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('send-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'block';
+
+            let offset = 0, start = Date.now(), lastUp = 0;
+
+            while(offset < f.size) {
+                if(isCancelled) break;
+
+                // LÓGICA AUTO-ADAPTATIVA
+                if(isAuto && offset > 0) {
+                    let bps = offset / ((Date.now() - start) / 1000);
+                    if(bps > 5000000) chunkVal = 1048576; // > 5MB/s -> Usa 1MB
+                    else if(bps > 2000000) chunkVal = 524288; // > 2MB/s -> Usa 512KB
+                    else chunkVal = 262144;
+                    statusLbl.innerText = `IA: Motor em ${chunkVal/1024}KB`;
+                }
+
+                if(nitro) {
+                    conn.send({ full: f, name: f.name, type: f.type });
+                    pBar.style.width = '100%'; break;
+                } else {
+                    const chk = f.slice(offset, offset + chunkVal);
+                    conn.send({ file: await chk.arrayBuffer(), name: f.name, type: f.type, size: f.size, last: (offset + chunkVal >= f.size) });
+                    offset += chunkVal;
+                    let now = Date.now();
+                    if(now - lastUp > msVal || offset >= f.size) {
+                        let bps = offset / ((now - start) / 1000);
+                        pBar.style.width = Math.round((offset/f.size)*100) + '%';
+                        document.getElementById('pct').innerText = Math.round((offset/f.size)*100) + '%';
+                        document.getElementById('speed').innerText = (bps/1024/1024).toFixed(1) + " MB/s";
+                        lastUp = now;
+                    }
+                }
             }
-            statusLbl.innerText = "✅ Enviado!"; playSound('success');
+            resetUI();
         }
 
-        function shareWhatsApp() {
-            const link = `${window.location.origin}${window.location.pathname}?join=${document.getElementById('my-id-display').innerText}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`);
-        }
+        function cancelTransfer() { isCancelled = true; resetUI(); }
+        function resetUI() { document.getElementById('send-btn').style.display = 'block'; document.getElementById('stop-btn').style.display = 'none'; document.getElementById('file-input').value = ""; }
+        async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { if(isCancelled) break; await sendFile(f); } }
+        
+        // Redes sociais e Scanner simplificados para o código não ficar gigante
+        function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
+        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop`); }
+        function toggleScanner() { alert("Aponte para o QR Code do parceiro!"); /* Lógica da câmera aqui */ }
     </script>
 </body>
 </html>

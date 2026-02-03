@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop Lab - Smart Engine</title>
+    <title>PrivDrop Lab - Heavy Engine</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -13,7 +13,7 @@
         :root { 
             --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
             --green: #34c759; --border: #dddddd; --red: #ff3b30; --tg: #0088cc; 
-            --nitro-1: #8A2BE2; --nitro-2: #FF00FF; --gold: #ffcc00;
+            --nitro-1: #8A2BE2; --nitro-2: #FF00FF;
         }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
@@ -29,10 +29,8 @@
         .btn-opt { background: var(--bg); border: 2px solid var(--border); color: var(--text); padding: 12px 2px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); transform: scale(1.05); }
         
-        /* Estilo Botão Auto */
-        .btn-auto { background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important; }
-        
         .btn-nitro { grid-column: span 3; background: linear-gradient(90deg, var(--nitro-1), var(--nitro-2)); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-nitro.active { outline: 3px solid white; box-shadow: 0 0 20px var(--nitro-2); }
 
         .btn-main { border: none; padding: 18px; border-radius: 18px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; font-size: 14px; color: white; text-transform: uppercase; }
         #send-btn { background: var(--green); }
@@ -40,6 +38,8 @@
 
         .progress-track { background: var(--border); height: 16px; border-radius: 8px; overflow: hidden; margin: 15px 0; }
         #progress-bar { background: var(--blue); width: 0%; height: 100%; transition: width 0.3s ease-out; }
+        #eta-display { font-size: 11px; font-weight: 800; color: var(--blue); margin-top: 5px; text-transform: uppercase; }
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 15px; border: 2px solid var(--blue); background: #000; }
     </style>
 </head>
 <body>
@@ -54,17 +54,29 @@
         </div>
     </div>
 
+    <div id="reader"></div>
+
     <div class="card">
-        <span class="section-title">🚀 Motor (Chunk)</span>
+        <span class="section-title">🚀 Motor (Chunks em MB)</span>
         <div class="grid-opt">
-            <button class="btn-opt btn-auto active" id="btn-auto" onclick="setAutoMode(this)">AUTO</button>
-            <button class="btn-opt" onclick="setChunk(131072, this)">128KB</button>
-            <button class="btn-opt" onclick="setChunk(262144, this)">256KB</button>
-            <button class="btn-opt" onclick="setChunk(524288, this)">512KB</button>
-            <button class="btn-opt" onclick="setChunk(1048576, this)">1024KB</button>
-            <button class="btn-opt" onclick="setChunk(2097152, this)">2048KB</button>
+            <button class="btn-opt active" onclick="setChunk(1048576, this)">1 MB</button>
+            <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
+            <button class="btn-opt" onclick="setChunk(3145728, this)">3 MB</button>
+            <button class="btn-opt" onclick="setChunk(4194304, this)">4 MB</button>
+            <button class="btn-opt" onclick="setChunk(5242880, this)">5 MB</button>
+            <button class="btn-opt" onclick="setChunk(6291456, this)">6 MB</button>
         </div>
-        <button class="btn-nitro" id="nitro-btn" onclick="setNitro(this)">Nitro (Item Inteiro)</button>
+        <button class="btn-nitro" id="nitro-btn" onclick="setNitro(this)">Modo Nitro (Full Data)</button>
+
+        <span class="section-title" style="margin-top: 20px;">⏱️ Pulso (UI Update)</span>
+        <div class="grid-opt">
+            <button class="btn-opt" onclick="setMs(100, this)">100ms</button>
+            <button class="btn-opt active" onclick="setMs(500, this)">500ms</button>
+            <button class="btn-opt" onclick="setMs(1500, this)">1.5s</button>
+            <button class="btn-opt" onclick="setMs(3000, this)">3s</button>
+            <button class="btn-opt" onclick="setMs(5000, this)">5s</button>
+            <button class="btn-opt" onclick="setMs(10000, this)">10s</button>
+        </div>
     </div>
 
     <div class="card" id="transfer-area" style="display:none;">
@@ -72,17 +84,19 @@
         <div id="progress-container" style="display:none;">
             <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold;">
                 <span id="pct">0%</span>
-                <span id="speed">AGUARDANDO...</span>
+                <span id="speed">0.0 MB/s</span>
             </div>
             <div class="progress-track"><div id="progress-bar"></div></div>
-            <div id="status-label" style="font-size: 10px; opacity: 0.7; text-align: center;">IA Monitorando rede...</div>
+            <div id="eta-display">A calcular tempo...</div>
+            <div id="config-label" style="font-size: 10px; opacity: 0.5; text-align: center; margin-top: 5px;">Motor: 1MB | UI: 500ms</div>
         </div>
-        <button id="send-btn" class="btn-main" onclick="sendAll()">Iniciar Envio</button>
+        <button id="send-btn" class="btn-main" onclick="sendAll()">Iniciar Teste</button>
         <button id="stop-btn" class="btn-main" onclick="cancelTransfer()">🛑 Parar</button>
     </div>
 
     <script>
-        let peer, conn, chunkVal = 262144, msVal = 1500, nitro = false, isAuto = true, isCancelled = false;
+        // Padrão solicitado: 1MB (1048576 bytes) e 500ms
+        let peer, conn, chunkVal = 1048576, msVal = 500, nitro = false, isCancelled = false, html5QrCode;
         let received = {};
 
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
@@ -110,61 +124,72 @@
 
         function save(b, n) { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n; a.click(); }
 
-        function setAutoMode(btn) { isAuto = true; nitro = false; resetGrp('.btn-opt', btn); document.getElementById('nitro-btn').classList.remove('active'); }
-        function setChunk(v, b) { chunkVal = v; isAuto = false; nitro = false; resetGrp('.btn-opt', b); document.getElementById('nitro-btn').classList.remove('active'); }
-        function setNitro(b) { nitro = !nitro; isAuto = false; b.classList.toggle('active'); if(nitro) document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active')); }
+        function setChunk(v, b) { chunkVal = v; nitro = false; resetGrp('.grid-opt:first-of-type .btn-opt', b); document.getElementById('nitro-btn').classList.remove('active'); updateDatalabel(); }
+        function setMs(v, b) { msVal = v; resetGrp('.grid-opt:last-of-type .btn-opt', b); updateDatalabel(); }
+        function setNitro(b) { nitro = !nitro; b.classList.toggle('active'); if(nitro) { document.querySelectorAll('.grid-opt:first-of-type .btn-opt').forEach(x => x.classList.remove('active')); } updateDatalabel(); }
         function resetGrp(s, b) { document.querySelectorAll(s).forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+        function updateDatalabel() { document.getElementById('config-label').innerText = `Motor: ${nitro?'NITRO':(chunkVal/1024/1024).toFixed(0)+'MB'} | UI: ${msVal}ms`; }
+
+        function formatTime(seconds) {
+            if (seconds === Infinity || isNaN(seconds)) return "Calculando...";
+            if (seconds < 60) return `Faltam ${Math.round(seconds)}s`;
+            return `Faltam ${Math.floor(seconds/60)}m ${Math.round(seconds%60)}s`;
+        }
 
         async function sendFile(f) {
             isCancelled = false;
             const pBar = document.getElementById('progress-bar');
-            const statusLbl = document.getElementById('status-label');
             document.getElementById('progress-container').style.display = 'block';
             document.getElementById('send-btn').style.display = 'none';
             document.getElementById('stop-btn').style.display = 'block';
 
-            let offset = 0, start = Date.now(), lastUp = 0;
-
-            while(offset < f.size) {
-                if(isCancelled) break;
-
-                // LÓGICA AUTO-ADAPTATIVA
-                if(isAuto && offset > 0) {
-                    let bps = offset / ((Date.now() - start) / 1000);
-                    if(bps > 5000000) chunkVal = 1048576; // > 5MB/s -> Usa 1MB
-                    else if(bps > 2000000) chunkVal = 524288; // > 2MB/s -> Usa 512KB
-                    else chunkVal = 262144;
-                    statusLbl.innerText = `IA: Motor em ${chunkVal/1024}KB`;
-                }
-
-                if(nitro) {
-                    conn.send({ full: f, name: f.name, type: f.type });
-                    pBar.style.width = '100%'; break;
-                } else {
+            if(nitro) {
+                pBar.className = 'loop-bar';
+                document.getElementById('speed').innerText = "NITRO...";
+                conn.send({ full: f, name: f.name, type: f.type });
+                pBar.style.width = '100%';
+            } else {
+                pBar.className = ''; pBar.style.width = '0%';
+                let offset = 0, start = Date.now(), lastUp = 0;
+                while(offset < f.size) {
+                    if(isCancelled) break;
                     const chk = f.slice(offset, offset + chunkVal);
                     conn.send({ file: await chk.arrayBuffer(), name: f.name, type: f.type, size: f.size, last: (offset + chunkVal >= f.size) });
                     offset += chunkVal;
                     let now = Date.now();
                     if(now - lastUp > msVal || offset >= f.size) {
                         let bps = offset / ((now - start) / 1000);
-                        pBar.style.width = Math.round((offset/f.size)*100) + '%';
-                        document.getElementById('pct').innerText = Math.round((offset/f.size)*100) + '%';
+                        let pct = Math.round((offset/f.size)*100);
+                        pBar.style.width = pct + '%';
+                        document.getElementById('pct').innerText = pct + '%';
                         document.getElementById('speed').innerText = (bps/1024/1024).toFixed(1) + " MB/s";
+                        document.getElementById('eta-display').innerText = formatTime((f.size - offset) / bps);
                         lastUp = now;
                     }
                 }
             }
-            resetUI();
+            if(!isCancelled) { document.getElementById('send-btn').style.display = 'block'; document.getElementById('stop-btn').style.display = 'none'; }
         }
 
-        function cancelTransfer() { isCancelled = true; resetUI(); }
-        function resetUI() { document.getElementById('send-btn').style.display = 'block'; document.getElementById('stop-btn').style.display = 'none'; document.getElementById('file-input').value = ""; }
-        async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { if(isCancelled) break; await sendFile(f); } }
-        
-        // Redes sociais e Scanner simplificados para o código não ficar gigante
+        function cancelTransfer() { isCancelled = true; document.getElementById('send-btn').style.display = 'block'; document.getElementById('stop-btn').style.display = 'none'; document.getElementById('progress-bar').style.width = '0%'; document.getElementById('file-input').value = ""; document.getElementById('eta-display').innerText = "Parado"; }
+
+        async function sendAll() {
+            const files = document.getElementById('file-input').files;
+            for(let f of files) { if(isCancelled) break; await sendFile(f); }
+        }
+
         function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
-        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop`); }
-        function toggleScanner() { alert("Aponte para o QR Code do parceiro!"); /* Lógica da câmera aqui */ }
+        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop Lab`); }
+        function toggleScanner() {
+            const r = document.getElementById('reader');
+            if (r.style.display === 'block') { html5QrCode.stop(); r.style.display = 'none'; return; }
+            r.style.display = 'block';
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+                const url = new URL(text); connect(url.searchParams.get("join"));
+                html5QrCode.stop().then(() => { r.style.display = 'none'; });
+            }).catch(() => {});
+        }
     </script>
 </body>
 </html>

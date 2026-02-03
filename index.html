@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.35] - Turbo</title>
+    <title>PrivDrop [v2.6.36] - Turbo</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -50,7 +50,7 @@
 <body>
 
     <div id="top-id-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.35-LIMIT</div>
+        <div class="ver-header-pro">🛠️ LAB v2.6.36-TURBO</div>
     </div>
 
     <div class="card-area">
@@ -91,11 +91,8 @@
     </div>
 
     <script>
-        let peer, conn, chunkVal = 1048576, rxStart = 0, lastUiUpdate = 0;
+        let peer, conn, chunkVal = 4194304, rxStart = 0, lastUiUpdate = 0; // Chunk padrão 4MB
         let fileStream = null, writer = null, receivedBytes = 0;
-        
-        // LIMITADOR DE TESTE: 700 KB/s
-        const speedLimitKbs = 700; 
 
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
         peer.on('open', id => {
@@ -110,7 +107,7 @@
         function setupConn() {
             document.getElementById('main-area').style.display = 'block';
             
-            conn.on('data', async d => {
+            conn.on('data', d => {
                 if (d.file) {
                     if (!writer) {
                         receivedBytes = 0; rxStart = Date.now();
@@ -121,17 +118,9 @@
 
                     const uint8 = new Uint8Array(d.file);
                     
-                    // LÓGICA DO LIMITADOR
-                    const startTime = Date.now();
-                    await writer.write(uint8); 
+                    // DESTRAVADO: Escrita assíncrona pura, sem delays ou "await"
+                    writer.write(uint8); 
                     receivedBytes += uint8.length;
-                    
-                    // Cálculo para manter os 700kb/s
-                    const idealTime = (uint8.length / (speedLimitKbs * 1024)) * 1000;
-                    const actualTime = Date.now() - startTime;
-                    if (actualTime < idealTime) {
-                        await new Promise(r => setTimeout(r, idealTime - actualTime));
-                    }
 
                     let now = Date.now();
                     if (now - lastUiUpdate > 200 || d.last) {
@@ -157,13 +146,16 @@
         async function sendFile(f) {
             document.getElementById('tx-area').style.display = 'block';
             let offset = 0, start = Date.now();
-            // Usando chunk de 1MB para o teste de limite ser preciso
-            const testChunk = 1048576; 
             while(offset < f.size) {
-                if (conn.bufferSize > 8 * 1024 * 1024) { await new Promise(r => setTimeout(r, 20)); continue; }
-                const chunk = f.slice(offset, offset + testChunk);
-                conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + testChunk >= f.size) });
-                offset += testChunk;
+                // Buffer de 16MB para manter o fluxo sem engasgos
+                if (conn.bufferSize > 16 * 1024 * 1024) { 
+                    await new Promise(r => setTimeout(r, 10)); 
+                    continue; 
+                }
+                const chunk = f.slice(offset, offset + chunkVal);
+                conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + chunkVal >= f.size) });
+                offset += chunkVal;
+                
                 let now = Date.now();
                 let bps = (offset / 1024 / 1024) / ((now - start) / 1000);
                 document.getElementById('tx-bar').style.width = Math.round((offset/f.size)*100) + '%';
@@ -177,6 +169,8 @@
             const input = document.getElementById('file-input');
             if (input.files.length > 0) document.getElementById('file-label').innerText = `📦 ${input.files[0].name.substring(0,20)}...`;
         }
+        function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
+        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop TURBO`); }
     </script>
 </body>
 </html>

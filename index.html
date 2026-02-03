@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop Lab - Ultimate Edition</title>
+    <title>PrivDrop Lab - Turbo Edition</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -23,31 +23,26 @@
         
         .section-title { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 10px; display: block; text-align: left; letter-spacing: 1px; }
         
-        /* Botões de Conexão */
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
         .btn-sec { padding: 12px 5px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 10px; text-transform: uppercase; }
 
-        /* Grade de Chunks */
         .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px 5px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 5px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); }
 
-        /* Barras de Progresso */
         .progress-track { background: var(--border); height: 18px; border-radius: 9px; overflow: hidden; margin: 10px 0; }
-        .bar-fill { height: 100%; transition: width 0.3s; }
+        .bar-fill { height: 100%; transition: width 0.2s; }
         #tx-bar { background: var(--green); width: 0%; }
         #rx-bar { background: var(--blue); width: 0%; }
 
         #rx-area, #tx-area { display: none; margin-top: 15px; padding: 15px; border-radius: 20px; background: rgba(128,128,128,0.05); text-align: left; }
-        
         .btn-main { border: none; padding: 20px; border-radius: 20px; font-weight: 800; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 15px; }
-        
         #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 15px; border: 2px solid var(--blue); background: #000; }
     </style>
 </head>
 <body>
 
-    <div class="card">
+    <div class="card" id="connection-card">
         <div id="my-id-display" style="font-size: 36px; font-weight: 900; color: var(--blue); margin-bottom: 10px;">----</div>
         <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 10px; border-radius: 20px; width: fit-content; margin: 0 auto;"></div>
         
@@ -60,15 +55,15 @@
 
     <div id="reader"></div>
 
-    <div class="card">
-        <span class="section-title">🚀 Motor (Chunks MB)</span>
+    <div class="card" id="motor-card">
+        <span class="section-title">🚀 Turbo Motor (Chunks)</span>
         <div class="grid-opt">
-            <button class="btn-opt" onclick="setChunk(1048576, this)">1 MB</button>
             <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
-            <button class="btn-opt" onclick="setChunk(3145728, this)">3 MB</button>
             <button class="btn-opt" onclick="setChunk(4194304, this)">4 MB</button>
-            <button class="btn-opt active" onclick="setChunk(5242880, this)">5 MB</button>
-            <button class="btn-opt" onclick="setChunk(6291456, this)">6 MB</button>
+            <button class="btn-opt active" onclick="setChunk(6291456, this)">6 MB</button>
+            <button class="btn-opt" onclick="setChunk(8388608, this)">8 MB</button>
+            <button class="btn-opt" onclick="setChunk(12582912, this)">12 MB</button>
+            <button class="btn-opt" onclick="setChunk(16777216, this)">16 MB</button>
         </div>
     </div>
 
@@ -77,26 +72,26 @@
 
         <div id="tx-area">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>ENVIANDO...</span><span id="tx-pct">0%</span>
+                <span>ENVIANDO (TURBO)...</span><span id="tx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
-            <div id="tx-speed" style="font-size: 10px; font-weight: 800; opacity: 0.6;">0.0 MB/s</div>
+            <div id="tx-speed" style="font-size: 10px; font-weight: 800; color:var(--green);">0.0 MB/s</div>
         </div>
 
         <div id="rx-area">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>GRAVANDO DIRETO NO DISCO...</span><span id="rx-pct">0%</span>
+                <span>ESCRITA DIRETA EM DISCO...</span><span id="rx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
-            <div id="rx-name" style="font-size: 9px; opacity: 0.6; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Iniciando...</div>
+            <div id="rx-name" style="font-size: 9px; opacity: 0.6;">Aguardando pacotes...</div>
         </div>
 
-        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">Iniciar Teste</button>
+        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">Disparar Teste</button>
         <button id="stop-btn" class="btn-main" style="background:var(--red); display:none;" onclick="cancelTransfer()">🛑 Parar</button>
     </div>
 
     <script>
-        let peer, conn, chunkVal = 5242880, msVal = 500, isCancelled = false, html5QrCode;
+        let peer, conn, chunkVal = 6291456, msVal = 500, isCancelled = false, html5QrCode;
         let fileStream = null, writer = null, receivedBytes = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -119,25 +114,24 @@
         function connect(id) { conn = peer.connect(id); setupConn(); }
 
         function setupConn() {
+            document.getElementById('motor-card').style.display = 'none';
             document.getElementById('main-area').style.display = 'block';
+            
             conn.on('data', async d => {
                 if (d.file) {
                     if (!writer) {
                         receivedBytes = 0;
                         document.getElementById('rx-area').style.display = 'block';
-                        document.getElementById('rx-name').innerText = "Arquivo: " + d.name;
+                        document.getElementById('rx-name').innerText = "Destino: " + d.name;
                         fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
                         writer = fileStream.getWriter();
                     }
-
                     const uint8 = new Uint8Array(d.file);
-                    await writer.write(uint8);
-                    
+                    writer.write(uint8); // Escrita paralela para não travar o buffer
                     receivedBytes += uint8.length;
                     let pct = Math.round((receivedBytes / d.totalSize) * 100);
                     document.getElementById('rx-bar').style.width = pct + "%";
                     document.getElementById('rx-pct').innerText = pct + "%";
-
                     if (d.last) {
                         await writer.close(); writer = null;
                         playBeep();
@@ -158,11 +152,15 @@
             document.getElementById('tx-area').style.display = 'block';
             document.getElementById('send-btn').style.display = 'none';
             document.getElementById('stop-btn').style.display = 'block';
-
             let offset = 0, start = Date.now(), lastUp = 0;
+
             while(offset < f.size) {
                 if(isCancelled) break;
-                if (conn.bufferSize > chunkVal * 2) { await new Promise(r => setTimeout(r, 150)); }
+                
+                // AJUSTE TURBO: Limite de buffer maior e tempo de resposta menor
+                if (conn.bufferSize > chunkVal * 4) { 
+                    await new Promise(r => setTimeout(r, 50)); 
+                }
 
                 const chunk = f.slice(offset, offset + chunkVal);
                 conn.send({ 
@@ -179,7 +177,7 @@
                     let pct = Math.round((offset/f.size)*100);
                     document.getElementById('tx-bar').style.width = pct + '%';
                     document.getElementById('tx-pct').innerText = pct + '%';
-                    document.getElementById('tx-speed').innerText = (bps/1024/1024).toFixed(1) + " MB/s";
+                    document.getElementById('tx-speed').innerText = (bps/1024/1024).toFixed(2) + " MB/s";
                     lastUp = now;
                 }
             }
@@ -191,7 +189,6 @@
         function cancelTransfer() { isCancelled = true; if(writer) writer.abort(); }
         async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { if(isCancelled) break; await sendFile(f); } }
 
-        // BOTÕES SOCIAIS E CÂMERA
         function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
         function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop Lab`); }
         function toggleScanner() {

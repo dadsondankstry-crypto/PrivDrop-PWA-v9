@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.05] - Hyper Drive</title>
+    <title>PrivDrop [v2.6.09] - Final Lab</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -20,97 +20,110 @@
         
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); }
         
-        /* IDENTIFICADOR ÚNICO GIGANTE */
+        /* CABEÇALHO GIGANTE COM HOVER */
+        .ver-container { position: relative; width: 100%; max-width: 440px; margin-bottom: 20px; z-index: 1001; }
         .ver-header-pro { 
-            background: #000; color: var(--neon); padding: 15px; border-radius: 20px; 
-            font-size: 18px; font-weight: 900; margin-bottom: 20px; width: 100%; 
-            max-width: 420px; text-align: center; border: 2px solid var(--neon);
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+            background: #000; color: var(--neon); padding: 30px 10px; border-radius: 25px; 
+            font-size: 26px; font-weight: 900; text-align: center; border: 5px solid var(--neon);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.6); cursor: help;
         }
+        .change-log-hover { 
+            position: absolute; top: 100%; left: 0; right: 0; background: var(--card); 
+            border: 3px solid var(--neon); border-radius: 20px; padding: 20px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; 
+            transform: translateY(-10px); transition: 0.3s; z-index: 1002;
+        }
+        .ver-container:hover .change-log-hover { opacity: 1; visibility: visible; transform: translateY(10px); }
 
-        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
-        
-        .change-log { background: rgba(57, 255, 20, 0.05); border: 1px dashed var(--neon); border-radius: 15px; padding: 10px; margin-top: 15px; text-align: left; }
-        .change-log b { font-size: 10px; color: var(--green); text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .change-log li { font-size: 11px; list-style: none; color: var(--text); opacity: 0.8; margin-bottom: 3px; }
+        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 440px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-sec { padding: 15px 5px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; color: white; font-size: 11px; text-transform: uppercase; }
 
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .btn-sec { padding: 12px 5px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 10px; text-transform: uppercase; }
-
+        /* MOTOR TRAVADO 1-6MB */
         .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px 5px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px 5px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); }
 
-        .progress-track { background: var(--border); height: 18px; border-radius: 9px; overflow: hidden; margin: 10px 0; }
+        /* VISOR DA CAMERA NO TOPO */
+        #reader { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            z-index: 2000; display: none; background: #000;
+        }
+        #close-cam { 
+            position: absolute; top: 20px; right: 20px; z-index: 2001; 
+            background: var(--red); color: white; border: none; padding: 15px 25px; 
+            border-radius: 15px; font-weight: 900; cursor: pointer;
+        }
+
+        .progress-track { background: var(--border); height: 20px; border-radius: 10px; overflow: hidden; margin: 12px 0; }
         .bar-fill { height: 100%; transition: width 0.1s linear; }
         #tx-bar { background: var(--green); }
         #rx-bar { background: var(--blue); }
-
-        .btn-main { border: none; padding: 20px; border-radius: 20px; font-weight: 800; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 15px; }
+        .btn-main { border: none; padding: 22px; border-radius: 22px; font-weight: 900; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <div class="ver-header-pro">⚡ CORE: v2.6.05-HYPER-DRIVE ⚡</div>
-
-    <div class="card">
-        <div id="my-id-display" style="font-size: 36px; font-weight: 900; color: var(--blue); margin-bottom: 10px;">----</div>
-        <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 10px; border-radius: 20px; width: fit-content; margin: 0 auto;"></div>
-        
-        <div class="btn-row">
-            <button class="btn-sec" style="background:var(--green)" onclick="shareWpp()">WhatsApp</button>
-            <button class="btn-sec" style="background:var(--tg)" onclick="shareTg()">Telegram</button>
-            <button class="btn-sec" style="background:#3a3a3c" onclick="toggleScanner()">Câmera</button>
-        </div>
-
-        <div class="change-log">
-            <b>Engenharia de Performance:</b>
-            <li>✅ Escrita em Fluxo Paralelo (Sem bloqueio de rede)</li>
-            <li>✅ Redução de Latência no Buffer do PC</li>
-            <li>✅ Monitor de Memória RAM Otimizado</li>
+    <div class="ver-container">
+        <div class="ver-header-pro">🛠️ LAB v2.6.09-FINAL</div>
+        <div class="change-log-hover">
+            <b style="color:var(--green); display:block; margin-bottom:10px;">HISTÓRICO TÉCNICO:</b>
+            <li style="list-style:none; font-size:13px; margin-bottom:8px;">✅ Câmera: Fixada no Topo Absoluto</li>
+            <li style="list-style:none; font-size:13px; margin-bottom:8px;">✅ Motor: Restaurado para 1MB - 6MB</li>
+            <li style="list-style:none; font-size:13px; margin-bottom:8px;">✅ Hyper-Drive: Escrita Assíncrona Ativa</li>
+            <li style="list-style:none; font-size:13px;">✅ UI: Change Log Oculto (Hover)</li>
         </div>
     </div>
 
-    <div id="reader"></div>
+    <div id="reader">
+        <button id="close-cam" onclick="toggleScanner()">FECHAR CÂMERA</button>
+    </div>
+
+    <div class="card">
+        <div id="my-id-display" style="font-size: 40px; font-weight: 900; color: var(--blue); margin-bottom: 12px;">----</div>
+        <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 12px; border-radius: 20px; width: fit-content; margin: 0 auto;"></div>
+        
+        <div class="btn-row">
+            <button class="btn-sec" style="background:var(--green)" onclick="shareWpp()">WhatsApp</button>
+            <button class="btn-sec" style="background:var(--blue)" onclick="shareTg()">Telegram</button>
+            <button class="btn-sec" style="background:#3a3a3c" onclick="toggleScanner()">Câmera</button>
+        </div>
+    </div>
 
     <div class="card" id="motor-card">
-        <span class="section-title">🚀 Motor (Chunks MB)</span>
+        <span style="font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; text-align: left;">🚀 Motor (Chunks MB)</span>
         <div class="grid-opt">
+            <button class="btn-opt" onclick="setChunk(1048576, this)">1 MB</button>
             <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
+            <button class="btn-opt" onclick="setChunk(3145728, this)">3 MB</button>
             <button class="btn-opt" onclick="setChunk(4194304, this)">4 MB</button>
-            <button class="btn-opt active" onclick="setChunk(6291456, this)">6 MB</button>
-            <button class="btn-opt" onclick="setChunk(10485760, this)">10 MB</button>
-            <button class="btn-opt" onclick="setChunk(16777216, this)">16 MB</button>
-            <button class="btn-opt" onclick="setChunk(33554432, this)">32 MB</button>
+            <button class="btn-opt active" onclick="setChunk(5242880, this)">5 MB</button>
+            <button class="btn-opt" onclick="setChunk(6291456, this)">6 MB</button>
         </div>
     </div>
 
     <div class="card" id="main-area" style="display:none;">
         <input type="file" id="file-input" multiple style="width: 100%;">
-
         <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
-            <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
+            <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;">
                 <span>UPLOADING...</span><span id="tx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
-            <div id="tx-speed" style="font-size: 10px; font-weight: 800; color:var(--green);">0.00 MB/s</div>
+            <div id="tx-speed" style="font-size: 12px; font-weight: 900; color:var(--green);">0.00 MB/s</div>
         </div>
-
         <div id="rx-area" style="display:none; margin-top:15px; text-align:left;">
-            <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>STREAMING TO DISK...</span><span id="rx-pct">0%</span>
+            <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;">
+                <span>RECEIVING...</span><span id="rx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
         </div>
-
-        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">START HYPER DRIVE</button>
-        <button id="stop-btn" class="btn-main" style="background:var(--red); display:none;" onclick="cancelTransfer()">🛑 STOP</button>
+        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">INICIAR TESTE</button>
     </div>
 
     <script>
-        console.log("%c PRIVDROP HYPER-DRIVE v2.6.05 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 20px; border: 2px solid #39ff14; padding: 5px;");
+        console.log("%c 🚀 PRIVDROP LAB FINAL v2.6.09 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 30px; padding: 25px; border: 8px solid #39ff14; text-shadow: 0 0 15px #39ff14;");
         
-        let peer, conn, chunkVal = 6291456, msVal = 500, isCancelled = false, html5QrCode;
+        let peer, conn, chunkVal = 5242880, msVal = 500, isCancelled = false, html5QrCode;
         let fileStream = null, writer = null, receivedBytes = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -143,8 +156,6 @@
                         fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
                         writer = fileStream.getWriter();
                     }
-                    
-                    // PROCESSO ASSÍNCRONO: Escreve sem bloquear a rede
                     const uint8 = new Uint8Array(d.file);
                     writer.write(uint8).then(() => {
                         receivedBytes += uint8.length;
@@ -152,10 +163,9 @@
                         document.getElementById('rx-bar').style.width = pct + "%";
                         document.getElementById('rx-pct').innerText = pct + "%";
                     });
-
                     if (d.last) {
                         setTimeout(async () => {
-                            await writer.close(); writer = null;
+                            if(writer) { await writer.close(); writer = null; }
                             playBeep();
                             setTimeout(() => { document.getElementById('rx-area').style.display = 'none'; }, 2000);
                         }, 500);
@@ -164,27 +174,15 @@
             });
         }
 
-        function setChunk(v, b) { 
-            chunkVal = v; 
-            document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active'));
-            b.classList.add('active'); 
-        }
+        function setChunk(v, b) { chunkVal = v; document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active')); b.classList.add('active'); }
 
         async function sendFile(f) {
-            isCancelled = false;
             document.getElementById('tx-area').style.display = 'block';
-            document.getElementById('send-btn').style.display = 'none';
-            document.getElementById('stop-btn').style.display = 'block';
             let offset = 0, start = Date.now(), lastUp = 0;
-
             while(offset < f.size) {
-                if(isCancelled) break;
-                // BUFFER OTIMIZADO PARA REDE LOCAL
                 if (conn.bufferSize > chunkVal * 2) { await new Promise(r => setTimeout(r, 20)); }
-
                 const chunk = f.slice(offset, offset + chunkVal);
                 conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + chunkVal >= f.size) });
-                
                 offset += chunkVal;
                 let now = Date.now();
                 if(now - lastUp > msVal || offset >= f.size) {
@@ -195,23 +193,20 @@
                     lastUp = now;
                 }
             }
-            document.getElementById('send-btn').style.display = 'block';
-            document.getElementById('stop-btn').style.display = 'none';
         }
 
-        function cancelTransfer() { isCancelled = true; if(writer) writer.abort(); }
-        async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { if(isCancelled) break; await sendFile(f); } }
-
+        async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { await sendFile(f); } }
         function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
-        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop Lab`); }
+        function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop LAB`); }
+        
         function toggleScanner() {
             const r = document.getElementById('reader');
-            if (r.style.display === 'block') { html5QrCode.stop(); r.style.display = 'none'; return; }
+            if (r.style.display === 'block') { if(html5QrCode) html5QrCode.stop().then(() => { r.style.display = 'none'; }); return; }
             r.style.display = 'block';
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-                const url = new URL(text); connect(url.searchParams.get("join"));
-                html5QrCode.stop().then(() => { r.style.display = 'none'; });
+            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 300, height: 300 } }, (text) => {
+                const url = new URL(text); const joinId = url.searchParams.get("join");
+                if(joinId) { connect(joinId); html5QrCode.stop().then(() => { r.style.display = 'none'; }); }
             }).catch(() => {});
         }
     </script>

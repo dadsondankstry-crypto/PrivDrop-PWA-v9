@@ -1,117 +1,44 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFi P2P Turbo Share</title>
-    <link rel="manifest" href="manifest.json">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/polyfill.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/streamsaver@2.0.3/StreamSaver.min.js"></script>
+let lastUiUpdate = 0; // Para controlar o flood da UI
 
-    <style>
-        body { font-family: sans-serif; background: #0b0e11; color: #e9edef; text-align: center; padding: 20px; }
-        .card { background: #202c33; padding: 25px; border-radius: 20px; max-width: 400px; margin: auto; }
-        .dot { height: 12px; width: 12px; background: #ef4444; border-radius: 50%; display: inline-block; }
-        .online { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
-        button { background: #00a884; color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; }
-        button:disabled { background: #3b4a54; }
-        #progress { display: none; margin-top: 20px; background: #3b4a54; border-radius: 10px; height: 10px; overflow: hidden; }
-        #progressBar { background: #00a884; height: 100%; width: 0%; transition: width 0.1s; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h2>WiFi Turbo Share</h2>
-        <div class="status-container">
-            <div id="dot" class="dot"></div>
-            <span id="statusTxt">Aguardando conexão...</span>
-        </div>
+conn.on('data', async d => {
+    if (d.file) {
+        if (!writer) {
+            receivedBytes = 0;
+            document.getElementById('rx-area').style.display = 'block';
+            
+            // Criamos o stream de escrita
+            fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
+            writer = fileStream.getWriter();
+        }
+
+        const uint8 = new Uint8Array(d.file);
         
-        <input type="file" id="fileInput" style="display: none">
-        <button onclick="document.getElementById('fileInput').click()">📁 Selecionar Arquivo</button>
-        <br><br>
-        <button id="sendBtn" onclick="enviar()" disabled>🚀 Enviar para Celular</button>
+        // MELHORIA: Não usamos 'await' aqui para não travar a recepção do próximo chunk
+        // O writer.write cria uma fila interna (queuing strategy)
+        writer.write(uint8);
+        
+        receivedBytes += uint8.length;
 
-        <div id="progress">
-            <div id="progressBar"></div>
-        </div>
-        <div id="speed" style="margin-top: 10px; font-size: 0.8em;"></div>
-    </div>
-
-    <script>
-        const socket = io(); // Se usar no PC. Se for GitHub, mude para o IP do PC.
-        let peer;
-        let writer;
-        let startTime;
-
-        socket.on('user-joined', id => conectar(id, true));
-        socket.on('signal', data => {
-            if (!peer) conectar(data.from, false);
-            peer.signal(data.signal);
-        });
-
-        function conectar(targetId, initiator) {
-            peer = new SimplePeer({ initiator, trickle: false });
-
-            peer.on('signal', signal => socket.emit('signal', { to: targetId, signal }));
-
-            peer.on('connect', () => {
-                document.getElementById('dot').classList.add('online');
-                document.getElementById('statusTxt').innerText = "Conectado P2P!";
-                document.getElementById('sendBtn').disabled = false;
-            });
-
-            peer.on('data', data => {
-                // Lógica de Recebimento em Alta Velocidade
-                if (typeof data === 'string' && data.startsWith('meta:')) {
-                    const meta = JSON.parse(data.split('meta:')[1]);
-                    const fileStream = streamSaver.createWriteStream(meta.name, { size: meta.size });
-                    writer = fileStream.getWriter();
-                    if ('vibrate' in navigator) navigator.vibrate(200);
-                    return;
-                }
-
-                if (data.byteLength === 0) { // Fim do arquivo
-                    writer.close();
-                    alert("Arquivo recebido com sucesso!");
-                    return;
-                }
-
-                writer.write(new Uint8Array(data));
-            });
+        // MELHORIA: Só atualiza a interface a cada 100ms (evita lentidão por renderização)
+        let now = Date.now();
+        if (now - lastUiUpdate > 100 || d.last) {
+            const pct = Math.round((receivedBytes / d.totalSize) * 100) + "%";
+            document.getElementById('rx-bar').style.width = pct;
+            document.getElementById('rx-pct').innerText = pct;
+            lastUiUpdate = now;
         }
 
-        async function enviar() {
-            const file = document.getElementById('fileInput').files[0];
-            if (!file || !peer) return;
-
-            document.getElementById('progress').style.display = 'block';
-            
-            // Envia metadados
-            peer.send('meta:' + JSON.stringify({ name: file.name, size: file.size }));
-
-            const chunkSize = 128 * 1024; // Pacotes de 128KB (Mais rápido)
-            const reader = file.stream().getReader();
-            let offset = 0;
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    peer.send(new Uint8Array(0)); // Sinaliza fim
-                    break;
+        if (d.last) {
+            // No último pacote, garantimos que tudo foi escrito antes de fechar
+            setTimeout(async () => {
+                if (writer) {
+                    await writer.close();
+                    writer = null;
                 }
-                
-                peer.send(value);
-                offset += value.byteLength;
-                document.getElementById('progressBar').style.width = (offset / file.size * 100) + '%';
-            }
-            
-            alert("Envio finalizado!");
-            document.getElementById('progress').style.display = 'none';
+                setTimeout(() => { 
+                    document.getElementById('rx-area').style.display = 'none'; 
+                }, 2000);
+            }, 1000);
         }
-    </script>
-</body>
-</html>
+    }
+});

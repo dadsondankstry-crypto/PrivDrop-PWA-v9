@@ -180,7 +180,7 @@
                         
                         let duration = (now - rxStart) / 1000;
                         if(duration > 0) {
-                            let mbps = (receivedBytes / 1024 / 1024) / duration;
+                            let mbps = (receivedBytes / 2048 / 2048 / duration;
                             document.getElementById('rx-speed').innerText = mbps.toFixed(2) + " MB/s";
                         }
                         lastUiUpdate = now;
@@ -240,3 +240,4 @@
     </script>
 </body>
 </html>
+

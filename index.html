@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.04] - Turbo Max</title>
+    <title>PrivDrop [v2.6.05] - Hyper Drive</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -14,19 +14,24 @@
     <style>
         :root { 
             --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
-            --green: #34c759; --border: #dddddd; --red: #ff3b30; --nitro: #8A2BE2;
+            --green: #34c759; --border: #dddddd; --red: #ff3b30; --neon: #39ff14;
         }
         @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0b; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); }
-        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); position: relative; }
         
-        /* IDENTIFICADOR GIGANTE NO CABEÇALHO */
-        .ver-header { background: var(--nitro); color: white; padding: 10px 20px; border-radius: 15px; font-size: 14px; font-weight: 900; margin-bottom: 15px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center; border: 2px solid rgba(255,255,255,0.2); }
+        /* IDENTIFICADOR ÚNICO GIGANTE */
+        .ver-header-pro { 
+            background: #000; color: var(--neon); padding: 15px; border-radius: 20px; 
+            font-size: 18px; font-weight: 900; margin-bottom: 20px; width: 100%; 
+            max-width: 420px; text-align: center; border: 2px solid var(--neon);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+        }
 
-        /* LOG DE ALTERAÇÕES (CHANGE LOG) */
-        .change-log { background: rgba(0, 122, 255, 0.05); border: 1px dashed var(--blue); border-radius: 15px; padding: 10px; margin-top: 15px; text-align: left; }
-        .change-log b { font-size: 10px; color: var(--blue); text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
+        
+        .change-log { background: rgba(57, 255, 20, 0.05); border: 1px dashed var(--neon); border-radius: 15px; padding: 10px; margin-top: 15px; text-align: left; }
+        .change-log b { font-size: 10px; color: var(--green); text-transform: uppercase; display: block; margin-bottom: 5px; }
         .change-log li { font-size: 11px; list-style: none; color: var(--text); opacity: 0.8; margin-bottom: 3px; }
 
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
@@ -37,17 +42,16 @@
         .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); }
 
         .progress-track { background: var(--border); height: 18px; border-radius: 9px; overflow: hidden; margin: 10px 0; }
-        .bar-fill { height: 100%; transition: width 0.2s; }
-        #tx-bar { background: var(--green); width: 0%; }
-        #rx-bar { background: var(--blue); width: 0%; }
+        .bar-fill { height: 100%; transition: width 0.1s linear; }
+        #tx-bar { background: var(--green); }
+        #rx-bar { background: var(--blue); }
 
         .btn-main { border: none; padding: 20px; border-radius: 20px; font-weight: 800; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 15px; }
-        #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 15px; border: 2px solid var(--blue); background: #000; }
     </style>
 </head>
 <body>
 
-    <div class="ver-header">🚀 VERSÃO ATUAL: v2.6.04-TURBO-MAX</div>
+    <div class="ver-header-pro">⚡ CORE: v2.6.05-HYPER-DRIVE ⚡</div>
 
     <div class="card">
         <div id="my-id-display" style="font-size: 36px; font-weight: 900; color: var(--blue); margin-bottom: 10px;">----</div>
@@ -60,11 +64,10 @@
         </div>
 
         <div class="change-log">
-            <b>O que há de novo:</b>
-            <li>✅ Identificador Visual v2.6.04</li>
-            <li>✅ Ocultação Automática de Motor</li>
-            <li>✅ Buffer Turbo (Delay Reduzido para 30ms)</li>
-            <li>✅ Log Colorido no Console (F12)</li>
+            <b>Engenharia de Performance:</b>
+            <li>✅ Escrita em Fluxo Paralelo (Sem bloqueio de rede)</li>
+            <li>✅ Redução de Latência no Buffer do PC</li>
+            <li>✅ Monitor de Memória RAM Otimizado</li>
         </div>
     </div>
 
@@ -76,9 +79,9 @@
             <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
             <button class="btn-opt" onclick="setChunk(4194304, this)">4 MB</button>
             <button class="btn-opt active" onclick="setChunk(6291456, this)">6 MB</button>
-            <button class="btn-opt" onclick="setChunk(8388608, this)">8 MB</button>
-            <button class="btn-opt" onclick="setChunk(12582912, this)">12 MB</button>
+            <button class="btn-opt" onclick="setChunk(10485760, this)">10 MB</button>
             <button class="btn-opt" onclick="setChunk(16777216, this)">16 MB</button>
+            <button class="btn-opt" onclick="setChunk(33554432, this)">32 MB</button>
         </div>
     </div>
 
@@ -87,7 +90,7 @@
 
         <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>ENVIANDO...</span><span id="tx-pct">0%</span>
+                <span>UPLOADING...</span><span id="tx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
             <div id="tx-speed" style="font-size: 10px; font-weight: 800; color:var(--green);">0.00 MB/s</div>
@@ -95,18 +98,17 @@
 
         <div id="rx-area" style="display:none; margin-top:15px; text-align:left;">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>RECEBENDO (DISCO)...</span><span id="rx-pct">0%</span>
+                <span>STREAMING TO DISK...</span><span id="rx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
-            <div id="rx-name" style="font-size: 9px; opacity: 0.6;">Sincronizando...</div>
         </div>
 
-        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">Iniciar Transmissão</button>
-        <button id="stop-btn" class="btn-main" style="background:var(--red); display:none;" onclick="cancelTransfer()">🛑 Parar</button>
+        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">START HYPER DRIVE</button>
+        <button id="stop-btn" class="btn-main" style="background:var(--red); display:none;" onclick="cancelTransfer()">🛑 STOP</button>
     </div>
 
     <script>
-        console.log("%c PRIVDROP ENGINE v2.6.04-TURBO-MAX ATIVO ", "background: #8A2BE2; color: white; font-weight: bold; font-size: 16px; border-radius: 5px;");
+        console.log("%c PRIVDROP HYPER-DRIVE v2.6.05 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 20px; border: 2px solid #39ff14; padding: 5px;");
         
         let peer, conn, chunkVal = 6291456, msVal = 500, isCancelled = false, html5QrCode;
         let fileStream = null, writer = null, receivedBytes = 0;
@@ -141,22 +143,32 @@
                         fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
                         writer = fileStream.getWriter();
                     }
+                    
+                    // PROCESSO ASSÍNCRONO: Escreve sem bloquear a rede
                     const uint8 = new Uint8Array(d.file);
-                    writer.write(uint8); 
-                    receivedBytes += uint8.length;
-                    let pct = Math.round((receivedBytes / d.totalSize) * 100);
-                    document.getElementById('rx-bar').style.width = pct + "%";
-                    document.getElementById('rx-pct').innerText = pct + "%";
+                    writer.write(uint8).then(() => {
+                        receivedBytes += uint8.length;
+                        let pct = Math.round((receivedBytes / d.totalSize) * 100);
+                        document.getElementById('rx-bar').style.width = pct + "%";
+                        document.getElementById('rx-pct').innerText = pct + "%";
+                    });
+
                     if (d.last) {
-                        await writer.close(); writer = null;
-                        playBeep();
-                        setTimeout(() => { document.getElementById('rx-area').style.display = 'none'; }, 2000);
+                        setTimeout(async () => {
+                            await writer.close(); writer = null;
+                            playBeep();
+                            setTimeout(() => { document.getElementById('rx-area').style.display = 'none'; }, 2000);
+                        }, 500);
                     }
                 }
             });
         }
 
-        function setChunk(v, b) { chunkVal = v; document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+        function setChunk(v, b) { 
+            chunkVal = v; 
+            document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active'));
+            b.classList.add('active'); 
+        }
 
         async function sendFile(f) {
             isCancelled = false;
@@ -167,10 +179,12 @@
 
             while(offset < f.size) {
                 if(isCancelled) break;
-                // BUFFER TURBO AGRESSIVO (30ms)
-                if (conn.bufferSize > chunkVal * 4) { await new Promise(r => setTimeout(r, 30)); }
+                // BUFFER OTIMIZADO PARA REDE LOCAL
+                if (conn.bufferSize > chunkVal * 2) { await new Promise(r => setTimeout(r, 20)); }
+
                 const chunk = f.slice(offset, offset + chunkVal);
                 conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + chunkVal >= f.size) });
+                
                 offset += chunkVal;
                 let now = Date.now();
                 if(now - lastUp > msVal || offset >= f.size) {

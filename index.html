@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.14] - Pro UI</title>
+    <title>PrivDrop [v2.6.15] - Hybrid</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -14,7 +14,7 @@
     <style>
         :root { 
             --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
-            --green: #34c759; --border: #dddddd; --red: #ff3b30; --neon: #39ff14;
+            --green: #34c759; --border: #dddddd; --red: #ff3b30; --neon: #39ff14; --nitro: #ffcc00;
         }
         @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0b; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
@@ -37,19 +37,13 @@
         .card-area { padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
         .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 440px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
         
-        /* BOTÃO DE ARQUIVO CUSTOMIZADO */
-        .file-upload-wrapper { margin-bottom: 15px; width: 100%; }
-        .btn-file { 
-            background: var(--bg); border: 2px dashed var(--blue); color: var(--blue);
-            padding: 20px; border-radius: 20px; font-weight: 700; cursor: pointer;
-            display: block; text-align: center; transition: 0.2s;
-        }
-        .btn-file:hover { background: rgba(0, 122, 255, 0.05); }
-        #file-input { display: none; } /* Esconde o botão feio original */
+        /* UI DE ARQUIVO */
+        .btn-file { background: var(--bg); border: 2px dashed var(--blue); color: var(--blue); padding: 20px; border-radius: 20px; font-weight: 700; cursor: pointer; display: block; text-align: center; margin-bottom: 10px; }
+        #file-input { display: none; }
 
         /* CÂMERA FULL SCREEN */
         #reader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 5000; display: none; background: #000; }
-        #close-cam { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 5001; background: var(--red); color: white; border: none; padding: 20px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; box-shadow: 0 0 30px rgba(255,0,0,0.5); }
+        #close-cam { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 5001; background: var(--red); color: white; border: none; padding: 20px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-sec { padding: 15px 5px; border-radius: 16px; border: none; font-weight: 800; color: white; font-size: 11px; text-transform: uppercase; cursor: pointer; }
@@ -62,18 +56,22 @@
         #tx-bar { background: var(--green); }
         #rx-bar { background: var(--blue); }
         .btn-main { border: none; padding: 22px; border-radius: 22px; font-weight: 900; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 16px; }
+        
+        #mode-tag { font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 10px; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
+        .mode-nitro { background: var(--nitro); color: #000; }
+        .mode-chunks { background: var(--blue); color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="top-id-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.14-PRO UI</div>
+        <div class="ver-header-pro">🛠️ LAB v2.6.15-HYBRID</div>
         <div class="change-log-hover">
-            <b style="color:var(--green); display:block; margin-bottom:8px;">STATUS v2.6.14:</b>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Botão "Escolher" customizado e limpo</li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Input de arquivo original ocultado</li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Câmera: Oculta Identificador 70px</li>
-            <li style="list-style:none; font-size:12px;">✅ Motor: 1MB a 6MB (Original)</li>
+            <b style="color:var(--green); display:block; margin-bottom:8px;">LOG v2.6.15:</b>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Nitro Auto: Ativo p/ arquivos < 20MB</li>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Chunks Auto: Ativo p/ arquivos > 20MB</li>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ UI: Botão de Arquivo Apple Style</li>
+            <li style="list-style:none; font-size:12px;">✅ Motor: 1MB a 6MB (Manual p/ Chunks)</li>
         </div>
     </div>
 
@@ -91,7 +89,7 @@
         </div>
 
         <div class="card" id="motor-card">
-            <span style="font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; text-align: left;">🚀 Motor (Chunks MB)</span>
+            <span style="font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; text-align: left;">🚀 Ajuste de Chunks (Arquivos Grandes)</span>
             <div class="grid-opt">
                 <button class="btn-opt" onclick="setChunk(1048576, this)">1 MB</button>
                 <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
@@ -103,30 +101,28 @@
         </div>
 
         <div class="card" id="main-area" style="display:none;">
-            <div class="file-upload-wrapper">
-                <label for="file-input" class="btn-file" id="file-label">
-                    📁 SELECIONAR ARQUIVOS
-                </label>
-                <input type="file" id="file-input" multiple onchange="updateFileLabel()">
-            </div>
+            <div id="mode-tag" class="mode-chunks">Pronto para Enviar</div>
+            <label for="file-input" class="btn-file" id="file-label">📁 SELECIONAR ARQUIVOS</label>
+            <input type="file" id="file-input" multiple onchange="updateFileStatus()">
 
             <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
-                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>UPLOADING...</span><span id="tx-pct">0%</span></div>
+                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>STATUS:</span><span id="tx-pct">0%</span></div>
                 <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
                 <div id="tx-speed" style="font-size: 12px; font-weight: 900; color:var(--green);">0.00 MB/s</div>
             </div>
+            
             <div id="rx-area" style="display:none; margin-top:15px; text-align:left;">
-                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>RECEIVING...</span><span id="rx-pct">0%</span></div>
+                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>RECEBENDO...</span><span id="rx-pct">0%</span></div>
                 <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
             </div>
-            <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">INICIAR TESTE</button>
+            <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">INICIAR TRANSFERÊNCIA</button>
         </div>
     </div>
 
     <script>
-        console.log("%c 🚀 PRIVDROP PRO UI v2.6.14 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
+        console.log("%c 🚀 PRIVDROP HYBRID v2.6.15 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
         
-        let peer, conn, chunkVal = 5242880, msVal = 500, html5QrCode, filesDone = 0;
+        let peer, conn, chunkVal = 5242880, msVal = 500, html5QrCode;
         let fileStream = null, writer = null, receivedBytes = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -138,14 +134,19 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.15);
         }
 
-        // Atualiza o texto do botão customizado ao escolher arquivos
-        function updateFileLabel() {
+        function updateFileStatus() {
             const input = document.getElementById('file-input');
-            const label = document.getElementById('file-label');
+            const tag = document.getElementById('mode-tag');
             if (input.files.length > 0) {
-                label.innerText = `📦 ${input.files.length} SELECIONADO(S)`;
-                label.style.borderColor = "var(--green)";
-                label.style.color = "var(--green)";
+                const f = input.files[0];
+                if (f.size < 20 * 1024 * 1024) {
+                    tag.innerText = "MODO NITRO ATIVO (SUPER RÁPIDO)";
+                    tag.className = "mode-nitro";
+                } else {
+                    tag.innerText = "MODO CHUNKS (ESTABILIDADE PARA ARQUIVOS GRANDES)";
+                    tag.className = "mode-chunks";
+                }
+                document.getElementById('file-label').innerText = `📦 ${f.name.substring(0,20)}...`;
             }
         }
 
@@ -173,15 +174,13 @@
                     const uint8 = new Uint8Array(d.file);
                     writer.write(uint8).then(() => {
                         receivedBytes += uint8.length;
-                        let pct = Math.round((receivedBytes / d.totalSize) * 100);
-                        document.getElementById('rx-bar').style.width = pct + "%";
-                        document.getElementById('rx-pct').innerText = pct + "%";
+                        document.getElementById('rx-bar').style.width = Math.round((receivedBytes/d.totalSize)*100) + "%";
+                        document.getElementById('rx-pct').innerText = Math.round((receivedBytes/d.totalSize)*100) + "%";
                     });
                     if (d.last) {
                         setTimeout(async () => {
                             if(writer) { await writer.close(); writer = null; }
                             playBeep();
-                            filesDone++;
                             setTimeout(() => { document.getElementById('rx-area').style.display = 'none'; }, 2000);
                         }, 500);
                     }
@@ -194,11 +193,15 @@
         async function sendFile(f) {
             document.getElementById('tx-area').style.display = 'block';
             let offset = 0, start = Date.now(), lastUp = 0;
+            
+            // LÓGICA HÍBRIDA: Se < 20MB usa chunk único (Nitro)
+            let actualChunk = (f.size < 20 * 1024 * 1024) ? f.size : chunkVal;
+
             while(offset < f.size) {
-                if (conn.bufferSize > chunkVal * 2) { await new Promise(r => setTimeout(r, 20)); }
-                const chunk = f.slice(offset, offset + chunkVal);
-                conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + chunkVal >= f.size) });
-                offset += chunkVal;
+                if (conn.bufferSize > actualChunk * 2) { await new Promise(r => setTimeout(r, 20)); }
+                const chunk = f.slice(offset, offset + actualChunk);
+                conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + actualChunk >= f.size) });
+                offset += actualChunk;
                 let now = Date.now();
                 if(now - lastUp > msVal || offset >= f.size) {
                     let bps = offset / ((now - start) / 1000);
@@ -217,12 +220,8 @@
         function toggleScanner() {
             const r = document.getElementById('reader');
             const tid = document.getElementById('top-id-container');
-            if (r.style.display === 'block') { 
-                if(html5QrCode) html5QrCode.stop().then(() => { r.style.display = 'none'; tid.style.display = 'block'; }); 
-                return; 
-            }
-            r.style.display = 'block';
-            tid.style.display = 'none';
+            if (r.style.display === 'block') { if(html5QrCode) html5QrCode.stop().then(() => { r.style.display = 'none'; tid.style.display = 'block'; }); return; }
+            r.style.display = 'block'; tid.style.display = 'none';
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 300, height: 300 } }, (text) => {
                 const url = new URL(text); const joinId = url.searchParams.get("join");

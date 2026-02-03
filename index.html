@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop Lab - Turbo Edition</title>
+    <title>PrivDrop [v2.6.03] - Turbo</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -21,6 +21,9 @@
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); }
         .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
         
+        /* Identificador de Versão na UI */
+        .ver-tag { font-size: 9px; font-weight: 900; background: var(--blue); color: white; padding: 2px 8px; border-radius: 10px; position: absolute; top: 10px; right: 10px; }
+
         .section-title { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 10px; display: block; text-align: left; letter-spacing: 1px; }
         
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
@@ -42,7 +45,8 @@
 </head>
 <body>
 
-    <div class="card" id="connection-card">
+    <div class="card" style="position: relative;">
+        <div class="ver-tag">v2.6.03-TURBO</div>
         <div id="my-id-display" style="font-size: 36px; font-weight: 900; color: var(--blue); margin-bottom: 10px;">----</div>
         <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 10px; border-radius: 20px; width: fit-content; margin: 0 auto;"></div>
         
@@ -72,25 +76,26 @@
 
         <div id="tx-area">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>ENVIANDO (TURBO)...</span><span id="tx-pct">0%</span>
+                <span>TURBO TX...</span><span id="tx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
-            <div id="tx-speed" style="font-size: 10px; font-weight: 800; color:var(--green);">0.0 MB/s</div>
+            <div id="tx-speed" style="font-size: 10px; font-weight: 800; color:var(--green);">0.00 MB/s</div>
         </div>
 
         <div id="rx-area">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>ESCRITA DIRETA EM DISCO...</span><span id="rx-pct">0%</span>
+                <span>STREAMSAVER RX...</span><span id="rx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
-            <div id="rx-name" style="font-size: 9px; opacity: 0.6;">Aguardando pacotes...</div>
+            <div id="rx-name" style="font-size: 9px; opacity: 0.6;">Sincronizando disco...</div>
         </div>
 
-        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">Disparar Teste</button>
+        <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">Iniciar Transmissão</button>
         <button id="stop-btn" class="btn-main" style="background:var(--red); display:none;" onclick="cancelTransfer()">🛑 Parar</button>
     </div>
 
     <script>
+        console.log("PrivDrop Engine v2.6.03-TURBO-DIAG Inicializado");
         let peer, conn, chunkVal = 6291456, msVal = 500, isCancelled = false, html5QrCode;
         let fileStream = null, writer = null, receivedBytes = 0;
 
@@ -122,12 +127,12 @@
                     if (!writer) {
                         receivedBytes = 0;
                         document.getElementById('rx-area').style.display = 'block';
-                        document.getElementById('rx-name').innerText = "Destino: " + d.name;
+                        document.getElementById('rx-name').innerText = "Gravando: " + d.name;
                         fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
                         writer = fileStream.getWriter();
                     }
                     const uint8 = new Uint8Array(d.file);
-                    writer.write(uint8); // Escrita paralela para não travar o buffer
+                    writer.write(uint8); 
                     receivedBytes += uint8.length;
                     let pct = Math.round((receivedBytes / d.totalSize) * 100);
                     document.getElementById('rx-bar').style.width = pct + "%";
@@ -157,9 +162,9 @@
             while(offset < f.size) {
                 if(isCancelled) break;
                 
-                // AJUSTE TURBO: Limite de buffer maior e tempo de resposta menor
+                // BACKPRESSURE REDUZIDO PARA TESTE TURBO
                 if (conn.bufferSize > chunkVal * 4) { 
-                    await new Promise(r => setTimeout(r, 50)); 
+                    await new Promise(r => setTimeout(r, 40)); 
                 }
 
                 const chunk = f.slice(offset, offset + chunkVal);

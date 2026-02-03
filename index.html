@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.11] - Fix 70</title>
+    <title>PrivDrop [v2.6.13] - Ultra Clean</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -18,10 +18,10 @@
         }
         @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0b; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 0; color: var(--text); }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 0; color: var(--text); overflow-x: hidden; }
         
-        /* IDENTIFICADOR ALTURA 70PX */
-        .ver-container { position: sticky; top: 0; width: 100%; max-width: 100%; height: 70px; z-index: 3000; }
+        /* IDENTIFICADOR 70PX OCULTÁVEL */
+        #top-id-container { position: sticky; top: 0; width: 100%; height: 70px; z-index: 1000; transition: transform 0.3s ease; }
         .ver-header-pro { 
             background: #000; color: var(--neon); height: 70px; display: flex; align-items: center; justify-content: center;
             font-size: 20px; font-weight: 900; border-bottom: 3px solid var(--neon);
@@ -30,16 +30,17 @@
         .change-log-hover { 
             position: absolute; top: 70px; left: 50%; transform: translateX(-50%) translateY(-10px); width: 90%; max-width: 400px;
             background: var(--card); border: 2px solid var(--neon); border-radius: 0 0 20px 20px; padding: 15px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 2999;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 999;
         }
-        .ver-container:hover .change-log-hover { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        #top-id-container:hover .change-log-hover { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        .card-area { padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .card-area { padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
         .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 440px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
         
-        /* CAMERA EM CIMA LOGO ABAIXO DO ID */
-        #reader { position: fixed; top: 70px; left: 0; width: 100vw; height: calc(100vh - 70px); z-index: 2500; display: none; background: #000; }
-        #close-cam { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 2501; background: var(--red); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 900; cursor: pointer; }
+        /* CÂMERA FULL SCREEN (Z-INDEX MÁXIMO) */
+        #reader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 5000; display: none; background: #000; }
+        #cam-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 10px solid rgba(57, 255, 20, 0.2); box-sizing: border-box; pointer-events: none; }
+        #close-cam { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 5001; background: var(--red); color: white; border: none; padding: 20px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; box-shadow: 0 0 30px rgba(255,0,0,0.5); font-size: 16px; }
 
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-sec { padding: 15px 5px; border-radius: 16px; border: none; font-weight: 800; color: white; font-size: 11px; text-transform: uppercase; cursor: pointer; }
@@ -55,18 +56,21 @@
 </head>
 <body>
 
-    <div class="ver-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.11-FIX-70</div>
+    <div id="top-id-container">
+        <div class="ver-header-pro">🛠️ LAB v2.6.13-CLEAN</div>
         <div class="change-log-hover">
-            <b style="color:var(--green); display:block; margin-bottom:8px;">LOG v2.6.11:</b>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Identificador: Altura fixa 70px</li>
-            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Câmera: Scanner fixo no topo (Abaixo ID)</li>
+            <b style="color:var(--green); display:block; margin-bottom:8px;">STATUS v2.6.13:</b>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Câmera: Oculta Identificador ao abrir</li>
+            <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Escrita: StreamSaver Direto em Disco</li>
             <li style="list-style:none; font-size:12px; margin-bottom:5px;">✅ Transf: <span id="file-count">0</span> concluídos</li>
-            <li style="list-style:none; font-size:12px;">✅ Motor: 1MB a 6MB (Original)</li>
+            <li style="list-style:none; font-size:12px;">✅ Motor: Marchas 1MB - 6MB</li>
         </div>
     </div>
 
-    <div id="reader"><button id="close-cam" onclick="toggleScanner()">FECHAR</button></div>
+    <div id="reader">
+        <div id="cam-overlay"></div>
+        <button id="close-cam" onclick="toggleScanner()">CANCELAR SCANNER</button>
+    </div>
 
     <div class="card-area">
         <div class="card">
@@ -107,9 +111,9 @@
     </div>
 
     <script>
-        console.log("%c 🚀 PRIVDROP LAB v2.6.11-FIX-70 ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
+        console.log("%c 🚀 PRIVDROP LAB v2.6.13-ULTRA-CLEAN ", "background: #000; color: #39ff14; font-weight: bold; font-size: 24px; padding: 15px; border: 4px solid #39ff14;");
         
-        let peer, conn, chunkVal = 5242880, msVal = 500, isCancelled = false, html5QrCode, filesDone = 0;
+        let peer, conn, chunkVal = 5242880, msVal = 500, html5QrCode, filesDone = 0;
         let fileStream = null, writer = null, receivedBytes = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -189,12 +193,26 @@
         
         function toggleScanner() {
             const r = document.getElementById('reader');
-            if (r.style.display === 'block') { if(html5QrCode) html5QrCode.stop().then(() => { r.style.display = 'none'; }); return; }
+            const tid = document.getElementById('top-id-container');
+            if (r.style.display === 'block') { 
+                if(html5QrCode) html5QrCode.stop().then(() => { 
+                    r.style.display = 'none'; 
+                    tid.style.display = 'block'; // Mostra ID ao fechar
+                }); 
+                return; 
+            }
             r.style.display = 'block';
+            tid.style.display = 'none'; // Esconde ID ao abrir
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 280 } }, (text) => {
+            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 300, height: 300 } }, (text) => {
                 const url = new URL(text); const joinId = url.searchParams.get("join");
-                if(joinId) { connect(joinId); html5QrCode.stop().then(() => { r.style.display = 'none'; }); }
+                if(joinId) { 
+                    connect(joinId); 
+                    html5QrCode.stop().then(() => { 
+                        r.style.display = 'none'; 
+                        tid.style.display = 'block'; 
+                    }); 
+                }
             }).catch(() => {});
         }
     </script>

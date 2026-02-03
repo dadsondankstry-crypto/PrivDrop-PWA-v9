@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.03] - Turbo</title>
+    <title>PrivDrop [v2.6.04] - Turbo Max</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -14,23 +14,26 @@
     <style>
         :root { 
             --blue: #007aff; --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; 
-            --green: #34c759; --border: #dddddd; --red: #ff3b30; --tg: #0088cc;
+            --green: #34c759; --border: #dddddd; --red: #ff3b30; --nitro: #8A2BE2;
         }
         @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0b; --card: #1c1c1e; --text: #fff; --border: #38383a; } }
         
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text); }
-        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); }
+        .card { background: var(--card); padding: 25px; border-radius: 30px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; box-sizing: border-box; border: 1px solid var(--border); position: relative; }
         
-        /* Identificador de Versão na UI */
-        .ver-tag { font-size: 9px; font-weight: 900; background: var(--blue); color: white; padding: 2px 8px; border-radius: 10px; position: absolute; top: 10px; right: 10px; }
+        /* IDENTIFICADOR GIGANTE NO CABEÇALHO */
+        .ver-header { background: var(--nitro); color: white; padding: 10px 20px; border-radius: 15px; font-size: 14px; font-weight: 900; margin-bottom: 15px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center; border: 2px solid rgba(255,255,255,0.2); }
 
-        .section-title { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 10px; display: block; text-align: left; letter-spacing: 1px; }
-        
+        /* LOG DE ALTERAÇÕES (CHANGE LOG) */
+        .change-log { background: rgba(0, 122, 255, 0.05); border: 1px dashed var(--blue); border-radius: 15px; padding: 10px; margin-top: 15px; text-align: left; }
+        .change-log b { font-size: 10px; color: var(--blue); text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .change-log li { font-size: 11px; list-style: none; color: var(--text); opacity: 0.8; margin-bottom: 3px; }
+
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
         .btn-sec { padding: 12px 5px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 10px; text-transform: uppercase; }
 
-        .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 5px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .grid-opt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .btn-opt { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 15px 5px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .btn-opt.active { background: var(--blue); color: white; border-color: var(--blue); }
 
         .progress-track { background: var(--border); height: 18px; border-radius: 9px; overflow: hidden; margin: 10px 0; }
@@ -38,15 +41,15 @@
         #tx-bar { background: var(--green); width: 0%; }
         #rx-bar { background: var(--blue); width: 0%; }
 
-        #rx-area, #tx-area { display: none; margin-top: 15px; padding: 15px; border-radius: 20px; background: rgba(128,128,128,0.05); text-align: left; }
         .btn-main { border: none; padding: 20px; border-radius: 20px; font-weight: 800; width: 100%; margin-top: 15px; cursor: pointer; color: white; text-transform: uppercase; font-size: 15px; }
         #reader { width: 100%; border-radius: 20px; overflow: hidden; display: none; margin-bottom: 15px; border: 2px solid var(--blue); background: #000; }
     </style>
 </head>
 <body>
 
-    <div class="card" style="position: relative;">
-        <div class="ver-tag">v2.6.03-TURBO</div>
+    <div class="ver-header">🚀 VERSÃO ATUAL: v2.6.04-TURBO-MAX</div>
+
+    <div class="card">
         <div id="my-id-display" style="font-size: 36px; font-weight: 900; color: var(--blue); margin-bottom: 10px;">----</div>
         <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 10px; border-radius: 20px; width: fit-content; margin: 0 auto;"></div>
         
@@ -55,12 +58,20 @@
             <button class="btn-sec" style="background:var(--tg)" onclick="shareTg()">Telegram</button>
             <button class="btn-sec" style="background:#3a3a3c" onclick="toggleScanner()">Câmera</button>
         </div>
+
+        <div class="change-log">
+            <b>O que há de novo:</b>
+            <li>✅ Identificador Visual v2.6.04</li>
+            <li>✅ Ocultação Automática de Motor</li>
+            <li>✅ Buffer Turbo (Delay Reduzido para 30ms)</li>
+            <li>✅ Log Colorido no Console (F12)</li>
+        </div>
     </div>
 
     <div id="reader"></div>
 
     <div class="card" id="motor-card">
-        <span class="section-title">🚀 Turbo Motor (Chunks)</span>
+        <span class="section-title">🚀 Motor (Chunks MB)</span>
         <div class="grid-opt">
             <button class="btn-opt" onclick="setChunk(2097152, this)">2 MB</button>
             <button class="btn-opt" onclick="setChunk(4194304, this)">4 MB</button>
@@ -74,20 +85,20 @@
     <div class="card" id="main-area" style="display:none;">
         <input type="file" id="file-input" multiple style="width: 100%;">
 
-        <div id="tx-area">
+        <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>TURBO TX...</span><span id="tx-pct">0%</span>
+                <span>ENVIANDO...</span><span id="tx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
             <div id="tx-speed" style="font-size: 10px; font-weight: 800; color:var(--green);">0.00 MB/s</div>
         </div>
 
-        <div id="rx-area">
+        <div id="rx-area" style="display:none; margin-top:15px; text-align:left;">
             <div style="font-size: 11px; font-weight: 700; display:flex; justify-content:space-between;">
-                <span>STREAMSAVER RX...</span><span id="rx-pct">0%</span>
+                <span>RECEBENDO (DISCO)...</span><span id="rx-pct">0%</span>
             </div>
             <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
-            <div id="rx-name" style="font-size: 9px; opacity: 0.6;">Sincronizando disco...</div>
+            <div id="rx-name" style="font-size: 9px; opacity: 0.6;">Sincronizando...</div>
         </div>
 
         <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">Iniciar Transmissão</button>
@@ -95,7 +106,8 @@
     </div>
 
     <script>
-        console.log("PrivDrop Engine v2.6.03-TURBO-DIAG Inicializado");
+        console.log("%c PRIVDROP ENGINE v2.6.04-TURBO-MAX ATIVO ", "background: #8A2BE2; color: white; font-weight: bold; font-size: 16px; border-radius: 5px;");
+        
         let peer, conn, chunkVal = 6291456, msVal = 500, isCancelled = false, html5QrCode;
         let fileStream = null, writer = null, receivedBytes = 0;
 
@@ -121,13 +133,11 @@
         function setupConn() {
             document.getElementById('motor-card').style.display = 'none';
             document.getElementById('main-area').style.display = 'block';
-            
             conn.on('data', async d => {
                 if (d.file) {
                     if (!writer) {
                         receivedBytes = 0;
                         document.getElementById('rx-area').style.display = 'block';
-                        document.getElementById('rx-name').innerText = "Gravando: " + d.name;
                         fileStream = window.streamSaver.createWriteStream(d.name, { size: d.totalSize });
                         writer = fileStream.getWriter();
                     }
@@ -146,11 +156,7 @@
             });
         }
 
-        function setChunk(v, b) { 
-            chunkVal = v; 
-            document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active'));
-            b.classList.add('active'); 
-        }
+        function setChunk(v, b) { chunkVal = v; document.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('active')); b.classList.add('active'); }
 
         async function sendFile(f) {
             isCancelled = false;
@@ -161,34 +167,22 @@
 
             while(offset < f.size) {
                 if(isCancelled) break;
-                
-                // BACKPRESSURE REDUZIDO PARA TESTE TURBO
-                if (conn.bufferSize > chunkVal * 4) { 
-                    await new Promise(r => setTimeout(r, 40)); 
-                }
-
+                // BUFFER TURBO AGRESSIVO (30ms)
+                if (conn.bufferSize > chunkVal * 4) { await new Promise(r => setTimeout(r, 30)); }
                 const chunk = f.slice(offset, offset + chunkVal);
-                conn.send({ 
-                    file: await chunk.arrayBuffer(), 
-                    name: f.name, 
-                    totalSize: f.size, 
-                    last: (offset + chunkVal >= f.size) 
-                });
-                
+                conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + chunkVal >= f.size) });
                 offset += chunkVal;
                 let now = Date.now();
                 if(now - lastUp > msVal || offset >= f.size) {
                     let bps = offset / ((now - start) / 1000);
-                    let pct = Math.round((offset/f.size)*100);
-                    document.getElementById('tx-bar').style.width = pct + '%';
-                    document.getElementById('tx-pct').innerText = pct + '%';
+                    document.getElementById('tx-bar').style.width = Math.round((offset/f.size)*100) + '%';
+                    document.getElementById('tx-pct').innerText = Math.round((offset/f.size)*100) + '%';
                     document.getElementById('tx-speed').innerText = (bps/1024/1024).toFixed(2) + " MB/s";
                     lastUp = now;
                 }
             }
             document.getElementById('send-btn').style.display = 'block';
             document.getElementById('stop-btn').style.display = 'none';
-            setTimeout(() => { document.getElementById('tx-area').style.display = 'none'; }, 2000);
         }
 
         function cancelTransfer() { isCancelled = true; if(writer) writer.abort(); }

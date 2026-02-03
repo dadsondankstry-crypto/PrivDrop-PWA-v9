@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.1] - Diag</title>
+    <title>PrivDrop [v2.6.18] - Diag</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -58,7 +58,7 @@
 <body>
 
     <div id="top-id-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.16-DIAG</div>
+        <div class="ver-header-pro">🛠️ LAB v2.6.18-DIAG</div>
         <div class="change-log-hover">
             <b style="color:var(--green); display:block; margin-bottom:8px;">DIAGNÓSTICO DE REDE:</b>
             <li style="list-style:none; font-size:12px; margin-bottom:5px;">📡 Tipo de Conexão: <span id="net-type" style="color:var(--blue)">Analisando...</span></li>
@@ -98,7 +98,7 @@
             <input type="file" id="file-input" multiple onchange="updateFileStatus()">
 
             <div id="tx-area" style="display:none; margin-top:15px; text-align:left;">
-                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>ENVIANDO...</span><span id="tx-pct">0%</span></div>
+                <div style="font-size: 12px; font-weight: 800; display:flex; justify-content:space-between;"><span>STATUS:</span><span id="tx-pct">0%</span></div>
                 <div class="progress-track"><div id="tx-bar" class="bar-fill"></div></div>
                 <div id="tx-speed" style="font-size: 12px; font-weight: 900; color:var(--green);">0.00 MB/s</div>
             </div>
@@ -108,7 +108,6 @@
                 <div class="progress-track"><div id="rx-bar" class="bar-fill"></div></div>
                 <div id="rx-speed" style="font-size: 12px; font-weight: 900; color:var(--blue);">0.00 MB/s</div>
             </div>
-
             <button id="send-btn" class="btn-main" style="background:var(--green);" onclick="sendAll()">INICIAR TRANSFERÊNCIA</button>
         </div>
     </div>
@@ -137,7 +136,6 @@
             document.getElementById('motor-card').style.display = 'none';
             document.getElementById('main-area').style.display = 'block';
             
-            // Analisador de Rede
             setTimeout(() => {
                 if(conn.peerConnection) {
                     const pc = conn.peerConnection;
@@ -156,7 +154,7 @@
                 }
             }, 2000);
 
-            // LOGICA DE RECEBIMENTO TURBO
+            // LOGICA DE RECEBIMENTO OTIMIZADA
             conn.on('data', async d => {
                 if (d.file) {
                     if (!writer) {
@@ -168,14 +166,17 @@
                     }
 
                     const uint8 = new Uint8Array(d.file);
-                    writer.write(uint8); // Escrita assíncrona sem await para não travar a rede
+                    
+                    // ESCREVE SEM BLOQUEAR A FILA DE RECEBIMENTO
+                    writer.write(uint8); 
                     receivedBytes += uint8.length;
 
                     let now = Date.now();
+                    // Atualiza UI apenas a cada 150ms para economizar CPU
                     if (now - lastUiUpdate > 150 || d.last) {
-                        const pct = Math.round((receivedBytes/d.totalSize)*100);
-                        document.getElementById('rx-bar').style.width = pct + "%";
-                        document.getElementById('rx-pct').innerText = pct + "%";
+                        const pct = Math.round((receivedBytes/d.totalSize)*100) + "%";
+                        document.getElementById('rx-bar').style.width = pct;
+                        document.getElementById('rx-pct').innerText = pct;
                         
                         let duration = (now - rxStart) / 1000;
                         if(duration > 0) {
@@ -189,7 +190,7 @@
                         setTimeout(async () => {
                             if(writer) { await writer.close(); writer = null; }
                             setTimeout(() => { 
-                                document.getElementById('rx-area').style.display = 'none';
+                                document.getElementById('rx-area').style.display = 'none'; 
                                 document.getElementById('rx-speed').innerText = "0.00 MB/s";
                             }, 3000);
                         }, 1000);
@@ -239,4 +240,3 @@
     </script>
 </body>
 </html>
-

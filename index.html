@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrivDrop [v2.6.3w3] - Turbo</title>
+    <title>PrivDrop [v2.6.32] - Turbo</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -32,9 +32,9 @@
         
         .input-id-group { display: flex; gap: 8px; margin: 15px 0; background: var(--bg); padding: 8px; border-radius: 15px; border: 1px solid var(--border); }
         .input-id-manual { background: transparent; border: none; outline: none; color: var(--text); font-weight: 900; font-size: 16px; width: 100%; text-align: center; }
-        .btn-connect { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 10px 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .btn-connect { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 10px 15px; font-weight: 800; cursor: pointer; }
 
-        .btn-file { background: var(--bg); border: 2px dashed var(--blue); color: var(--blue); padding: 20px; border-radius: 20px; font-weight: 700; cursor: pointer; display: block; border-style: dashed; }
+        .btn-file { background: var(--bg); border: 2px dashed var(--blue); color: var(--blue); padding: 20px; border-radius: 20px; font-weight: 700; cursor: pointer; display: block; }
         #file-input { display: none; }
 
         .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
@@ -50,7 +50,7 @@
 <body>
 
     <div id="top-id-container">
-        <div class="ver-header-pro">🛠️ LAB v2.6.33-TURBO</div>
+        <div class="ver-header-pro">🛠️ LAB v2.6.32-TURBO</div>
     </div>
 
     <div class="card-area">
@@ -60,7 +60,7 @@
             <div id="qrcode" style="display: flex; justify-content: center; background: white; padding: 12px; border-radius: 20px; width: fit-content; margin: 0 auto; border: 1px solid var(--border);"></div>
             
             <div class="input-id-group">
-                <input type="text" id="manual-id-input" class="input-id-manual" placeholder="ID DO AMIGO" maxlength="4">
+                <input type="text" id="manual-id-input" class="input-id-manual" placeholder="ID DO DESTINO" maxlength="4">
                 <button class="btn-connect" onclick="connectManual()">CONECTAR</button>
             </div>
 
@@ -95,16 +95,10 @@
         let peer, conn, chunkVal = 5242880, rxStart = 0, lastUiUpdate = 0;
         let fileStream = null, writer = null, receivedBytes = 0;
 
-        function updateFileStatus() {
-            const input = document.getElementById('file-input');
-            if (input.files.length > 0) document.getElementById('file-label').innerText = `📦 ${input.files[0].name.substring(0,20)}...`;
-        }
-
         peer = new Peer(Math.floor(1000 + Math.random() * 9000).toString());
         peer.on('open', id => {
             document.getElementById('my-id-display').innerText = id;
             new QRCode(document.getElementById("qrcode"), { text: window.location.href + "?join=" + id, width: 140, height: 140 });
-            if(new URLSearchParams(window.location.search).get('join')) connect(new URLSearchParams(window.location.search).get('join'));
         });
 
         peer.on('connection', c => { conn = c; setupConn(); });
@@ -114,7 +108,6 @@
         function setupConn() {
             document.getElementById('main-area').style.display = 'block';
             
-            // RECEBIMENTO OTIMIZADO - SEM BLOQUEIO SÍNCRONO
             conn.on('data', d => {
                 if (d.file) {
                     if (!writer) {
@@ -127,7 +120,7 @@
 
                     const uint8 = new Uint8Array(d.file);
                     
-                    // ESCREVE NO DISCO EM PARALELO (DESTRAVA A REDE)
+                    // DESTRAVADO: Escrita assíncrona pura
                     writer.write(uint8); 
                     receivedBytes += uint8.length;
 
@@ -159,8 +152,8 @@
             document.getElementById('tx-area').style.display = 'block';
             let offset = 0, start = Date.now();
             while(offset < f.size) {
-                // Buffer de 16MB para manter a vazão alta
-                if (conn.bufferSize > 16 * 1024 * 1024) { await new Promise(r => setTimeout(r, 10)); continue; }
+                // Buffer de 32MB para garantir fluxo contínuo
+                if (conn.bufferSize > 32 * 1024 * 1024) { await new Promise(r => setTimeout(r, 5)); continue; }
                 const chunk = f.slice(offset, offset + chunkVal);
                 conn.send({ file: await chunk.arrayBuffer(), name: f.name, totalSize: f.size, last: (offset + chunkVal >= f.size) });
                 offset += chunkVal;
@@ -173,6 +166,10 @@
         }
 
         async function sendAll() { const files = document.getElementById('file-input').files; for(let f of files) { await sendFile(f); } }
+        function updateFileStatus() {
+            const input = document.getElementById('file-input');
+            if (input.files.length > 0) document.getElementById('file-label').innerText = `📦 ${input.files[0].name.substring(0,20)}...`;
+        }
         function shareWpp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}`); }
         function shareTg() { window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href+"?join="+document.getElementById('my-id-display').innerText)}&text=PrivDrop TURBO`); }
     </script>
